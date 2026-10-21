@@ -9,12 +9,14 @@ package com.akshaykadam.pixelboard.patches.gboard.features.clipboard
 
 import com.akshaykadam.pixelboard.patches.gboard.shared.GboardMethodTarget
 import com.akshaykadam.pixelboard.patches.gboard.shared.findMutableMethodOrNull
+import com.akshaykadam.pixelboard.patches.gboard.shared.isMethodReference
 import com.akshaykadam.pixelboard.patches.gboard.shared.isOpcode
 import com.akshaykadam.pixelboard.patches.shared.Constants.COMPATIBILITY_GBOARD
 import com.akshaykadam.pixelboard.patches.shared.addInstructions
 import com.akshaykadam.pixelboard.patches.shared.bytecodePatch
 import com.akshaykadam.pixelboard.patches.shared.replaceInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.NarrowLiteralInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.TwoRegisterInstruction
 
 /**
@@ -64,6 +66,32 @@ internal val gboardInfiniteClipboardPatch = bytecodePatch(
                 """.trimIndent(),
             )
             println("[Infinite Clipboard] Removed clipboard retention limit.")
+        }
+
+        val retentionSetting = findMutableMethodOrNull(
+            GboardMethodTarget(
+                classType = "Ljvj;",
+                name = "b",
+                parameterTypes = listOf("Landroid/content/Context;", "Laiaa;"),
+                returnType = "V",
+            ),
+        )
+        if (retentionSetting != null) {
+            val instructions = retentionSetting.implementation?.instructions
+            val flagIndex = instructions?.indexOfFirst { instruction ->
+                instruction.isMethodReference("Ljava/lang/Boolean;->booleanValue()Z")
+            } ?: -1
+            val flagResult = instructions?.getOrNull(flagIndex + 1)
+            if (flagIndex >= 0 && flagResult != null && flagResult.isOpcode("MOVE_RESULT")) {
+                val register = (flagResult as OneRegisterInstruction).registerA
+                // The flag-gated branch configures the 1-24 hour slider when true and hides it
+                // when false, so the move-result is pinned to zero to always take the hide path.
+                retentionSetting.replaceInstruction(
+                    flagIndex + 1,
+                    "const/4 v$register, 0x0",
+                )
+                println("[Infinite Clipboard] Hid the clipboard retention setting.")
+            }
         }
 
         val trim = findMutableMethodOrNull(

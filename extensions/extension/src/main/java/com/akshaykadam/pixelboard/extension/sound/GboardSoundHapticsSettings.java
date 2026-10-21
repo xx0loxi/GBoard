@@ -19,18 +19,11 @@ public final class GboardSoundHapticsSettings {
     public static final int DEFAULT_VIBRATION_DURATION = 30;
     public static final int DEFAULT_VIBRATION_AMPLITUDE = 0;
 
-    private static final java.util.concurrent.atomic.AtomicInteger REVISION =
-            new java.util.concurrent.atomic.AtomicInteger();
-
     private GboardSoundHapticsSettings() {
     }
 
-    static int revision() {
-        return REVISION.get();
-    }
-
     public static boolean isEnabled(Context context) {
-        return preferences(context).getBoolean(PREF_ENABLED, true);
+        return preferences(context).getBoolean(PREF_ENABLED, false);
     }
 
     public static void setEnabled(Context context, boolean enabled) {
@@ -89,7 +82,6 @@ public final class GboardSoundHapticsSettings {
                     .remove(PREF_VIBRATION_DURATION)
                     .remove(PREF_VIBRATION_AMPLITUDE)
                     .apply();
-            REVISION.incrementAndGet();
         } catch (Throwable throwable) {
             Log.w(TAG, "Failed to reset sound and haptics settings", throwable);
         }
@@ -102,7 +94,6 @@ public final class GboardSoundHapticsSettings {
     private static void write(Context context, String key, boolean value) {
         try {
             preferences(context).edit().putBoolean(key, value).apply();
-            REVISION.incrementAndGet();
         } catch (Throwable throwable) {
             Log.w(TAG, "Failed to write " + key, throwable);
         }
@@ -111,7 +102,6 @@ public final class GboardSoundHapticsSettings {
     private static void write(Context context, String key, int value) {
         try {
             preferences(context).edit().putInt(key, value).apply();
-            REVISION.incrementAndGet();
         } catch (Throwable throwable) {
             Log.w(TAG, "Failed to write " + key, throwable);
         }

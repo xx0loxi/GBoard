@@ -39,9 +39,6 @@ public final class GboardSoundHapticsRuntime {
     private static volatile boolean fieldsResolved;
     private static volatile boolean warningLogged;
 
-    private static volatile Snapshot snapshot;
-    private static volatile int snapshotRevision = Integer.MIN_VALUE;
-
     private GboardSoundHapticsRuntime() {
     }
 
@@ -285,21 +282,13 @@ public final class GboardSoundHapticsRuntime {
     }
 
     private static Snapshot snapshot(Context context) {
-        int revision = GboardSoundHapticsSettings.revision();
-        Snapshot current = snapshot;
-        if (current != null && snapshotRevision == revision) {
-            return current;
-        }
-        Snapshot loaded = new Snapshot(
+        return new Snapshot(
                 GboardSoundHapticsSettings.isEnabled(context),
                 GboardSoundHapticsSettings.isSoundEnabled(context),
                 GboardSoundHapticsSettings.getSoundVolume(context),
                 GboardSoundHapticsSettings.isHapticsEnabled(context),
                 GboardSoundHapticsSettings.getVibrationDuration(context),
                 GboardSoundHapticsSettings.getVibrationAmplitude(context));
-        snapshot = loaded;
-        snapshotRevision = revision;
-        return loaded;
     }
 
     private static int clamp(int value, int minimum, int maximum) {
