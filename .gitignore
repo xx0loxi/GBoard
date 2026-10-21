@@ -32,6 +32,7 @@ input/splits*/
 
 # Scratch directory
 scratch/
+output/tmp*/
 
 # Reverse-engineering dumps (regenerated on demand, never commit)
 output/stock-*/
