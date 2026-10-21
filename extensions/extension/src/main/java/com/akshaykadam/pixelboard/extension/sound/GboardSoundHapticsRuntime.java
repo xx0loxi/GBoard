@@ -105,8 +105,7 @@ public final class GboardSoundHapticsRuntime {
             if (!current.hapticsEnabled || current.vibrationDuration <= 0) {
                 return true;
             }
-            vibrate(context, current.vibrationDuration, current.vibrationAmplitude);
-            return true;
+            return vibrate(context, current.vibrationDuration, current.vibrationAmplitude);
         } catch (Throwable throwable) {
             warnOnce("Failed to apply haptic overrides", throwable);
             return false;
@@ -145,33 +144,34 @@ public final class GboardSoundHapticsRuntime {
             if (current.vibrationDuration <= 0) {
                 return true;
             }
-            vibrate(context, current.vibrationDuration, current.vibrationAmplitude);
-            return true;
+            return vibrate(context, current.vibrationDuration, current.vibrationAmplitude);
         } catch (Throwable throwable) {
             warnOnce("Failed to override vibration", throwable);
             return false;
         }
     }
 
-    private static void vibrate(Context context, int duration, int amplitude) {
+    private static boolean vibrate(Context context, int duration, int amplitude) {
         try {
             Object service = context.getSystemService(Context.VIBRATOR_SERVICE);
             if (!(service instanceof Vibrator)) {
-                return;
+                return false;
             }
             Vibrator vibrator = (Vibrator) service;
             if (!vibrator.hasVibrator()) {
-                return;
+                return false;
             }
             int safeDuration = clamp(duration, 1, MAX_VIBRATION_DURATION);
             int safeAmplitude = amplitude <= 0 ? -1 : clamp(amplitude, 1, MAX_VIBRATION_AMPLITUDE);
             Object effect = createOneShot(safeDuration, safeAmplitude);
             if (effect != null && vibrateWithEffect(vibrator, effect)) {
-                return;
+                return true;
             }
             vibrator.vibrate(safeDuration);
+            return true;
         } catch (Throwable throwable) {
             warnOnce("Failed to perform vibration", throwable);
+            return false;
         }
     }
 

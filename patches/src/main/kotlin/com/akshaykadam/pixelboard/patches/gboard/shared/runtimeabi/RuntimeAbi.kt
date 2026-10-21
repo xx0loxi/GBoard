@@ -27,8 +27,6 @@ internal enum class RuntimeCallId(internal val encodedAbi: String) {
     SOUND_HAPTICS_RUNTIME_APPLY_SOUND("Lcom/akshaykadam/pixelboard/extension/sound/GboardSoundHapticsRuntime;->applySound(Ljava/lang/Object;)V"),
     SOUND_HAPTICS_RUNTIME_HANDLE_HAPTIC("Lcom/akshaykadam/pixelboard/extension/sound/GboardSoundHapticsRuntime;->handleHaptic(Ljava/lang/Object;I)Z"),
     SOUND_HAPTICS_RUNTIME_OVERRIDE_VIBRATION("Lcom/akshaykadam/pixelboard/extension/sound/GboardSoundHapticsRuntime;->overrideVibration(Ljava/lang/Object;I)Z"),
-    THEME_STUDIO_RUNTIME_APPLY_KEYBOARD_COLORS("Lcom/akshaykadam/pixelboard/extension/theme/GboardThemeStudioRuntime;->applyKeyboardColors(Landroid/view/View;)V"),
-    THEME_STUDIO_RUNTIME_APPLY_KEY_COLORS("Lcom/akshaykadam/pixelboard/extension/theme/GboardThemeStudioRuntime;->applyKeyColors(Landroid/view/View;)V"),
     FEATURES_MENU_ACCESSIBILITY_ON_INFLATE("Lcom/akshaykadam/pixelboard/extension/accessibility/GboardFeaturesMenuAccessibilityRuntime;->onAccessPointsPanelInflated(Landroid/view/View;)V"),
     FEATURES_MENU_ACCESSIBILITY_ON_VISIBILITY_CHANGED("Lcom/akshaykadam/pixelboard/extension/accessibility/GboardFeaturesMenuAccessibilityRuntime;->onAccessPointsPanelVisibilityChanged(Landroid/view/View;)V"),
 }

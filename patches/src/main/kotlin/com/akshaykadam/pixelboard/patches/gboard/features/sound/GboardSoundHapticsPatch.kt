@@ -112,10 +112,14 @@ private fun BytecodePatchContext.installHapticHook() {
         return
     }
     val instructions = implementation.instructions
+    val callInstruction = RuntimeCallEmitter.invoke(
+        call,
+        "v$firstParameter, v${firstParameter + 2}",
+    )
     method.addInstructionsWithLabels(
         0,
         """
-            ${RuntimeCallEmitter.invoke(call, "v$firstParameter, v${firstParameter + 1}")}
+            $callInstruction
             move-result v0
             if-eqz v0, :pixelboard_sound_haptics_continue
             return-void

@@ -30,7 +30,7 @@ public final class GboardSoundHapticsSettings {
     }
 
     public static boolean isEnabled(Context context) {
-        return preferences(context).getBoolean(PREF_ENABLED, false);
+        return preferences(context).getBoolean(PREF_ENABLED, true);
     }
 
     public static void setEnabled(Context context, boolean enabled) {

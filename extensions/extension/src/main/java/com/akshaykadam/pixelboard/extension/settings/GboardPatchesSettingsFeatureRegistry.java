@@ -18,7 +18,6 @@ import com.akshaykadam.pixelboard.extension.clipboard.GboardClipboardHistorySett
 import com.akshaykadam.pixelboard.extension.clipboard.GboardClipboardVaultSettingsFeature;
 import com.akshaykadam.pixelboard.extension.keyboard.GboardAiVoiceSettingsGroupFeature;
 import com.akshaykadam.pixelboard.extension.sound.GboardSoundHapticsSettingsFeature;
-import com.akshaykadam.pixelboard.extension.theme.GboardThemeStudioSettingsFeature;
 
 public final class GboardPatchesSettingsFeatureRegistry {
     private static final String TAG = "GBoard";
@@ -30,7 +29,6 @@ public final class GboardPatchesSettingsFeatureRegistry {
         List<GboardPatchesSettingsContract.Feature> features =
                 new ArrayList<GboardPatchesSettingsContract.Feature>();
         addIfAvailable(context, features, new GboardAiVoiceSettingsGroupFeature(context));
-        addIfAvailable(context, features, new GboardThemeStudioSettingsFeature(context));
         addIfAvailable(context, features, new GboardSoundHapticsSettingsFeature(context));
         addIfAvailable(context, features, new GboardClipboardVaultSettingsFeature(context));
         addIfAvailable(context, features, new GboardClipboardHistorySettingsFeature(context));
