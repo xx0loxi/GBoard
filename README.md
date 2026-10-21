@@ -120,7 +120,7 @@ AICore (оновлюється через Play), а не Gboard і не патч
 | `Performance & Privacy` | Глушить фонові ресивери Primes/AppDoctor/Phenotype, нативний crash-reporter, daily-ping планувальник і рекламний reporting-widget — менше wake-up'ів, мережі та батареї |
 | `Disable Cloud Backup` | Прибирає `allowBackup`/`backupAgent`/`dataExtractionRules` з манифеста, щоб словник і налаштування не потрапляли в Google Drive |
 | `Unlock All Themes` | Розгортає кожну категорію тем повністю: замість одного ряду + картки «Show more» показує всі теми одразу (хук `Lvjr;->p`, заміна ліміту на 10000) |
-| `Theme Studio` | Кастомна палітра з живим прев'ю: фон клавіатури, клавіші, підписи та цифри. Панель керування вбудована прямо в розділ «Тема» Gboard, кольори примусово застосовуються хуками `SoftKeyboardView.onLayout` і `SoftKeyView.onDraw` |
+| `Theme Studio` | Кастомна палітра з живим прев'ю: фон клавіатури, клавіші, підписи та цифри. У розділі «Тема» Gboard з'являється плаваюча кнопка **Theme Studio**, яка відкриває панель налаштувань; кольори примусово застосовуються хуками `SoftKeyboardView.onLayout` і `SoftKeyView.onDraw` |
 | `Infinite Clipboard` | Прибирає годинний TTL буфера (`Llcs;->a(Context)` → `Long.MAX_VALUE`), періодичне очищення (`Lldo;->g()`) і обрізання історії до 100 записів (`Llcs;->k`) |
 | `Secure Clipboard Vault` | Шифрує історію буфера (AES-GCM, ключ в Android Keystore) у `getNoBackupFilesDir()`; переживає перезавантаження й оновлення застосунку, не потрапляє в бекапи |
 | `GboardSpellCheckerChipsPatch` (внутрішній) | Форсує inline spell-checker chips та add-to-dictionary на Android 12+ |
