@@ -41,7 +41,7 @@ Tools / Writing Tools V2, сучасні підказки перевірки о�
 
 # Результат (публікується автоматично):
 #   patches/GBoard.mpp          <- стабільна назва для Morphe Manager / посилань
-#   patches/patches-1.3.2.mpp       <- версійна копія
+#   patches/patches-1.3.3.mpp       <- версійна копія
 #   patches/patches-bundle.json     <- метадані репозиторію Morphe
 #   patches/patches-list.json       <- інвентар патчів
 ```
@@ -104,7 +104,7 @@ AICore (оновлюється через Play), а не Gboard і не патч
 ```bash
 # Покласти стоковий Gboard APK у input/gboard.apk
 ./build.sh                 # або ./build.sh --rebuild
-# Результат: output/GBoard.apk, output/GBoard-1.3.2.apk
+# Результат: output/GBoard.apk, output/GBoard-1.3.3.apk
 ```
 
 ## Що всередині
@@ -120,7 +120,7 @@ AICore (оновлюється через Play), а не Gboard і не патч
 | `Performance & Privacy` | Глушить фонові ресивери Primes/AppDoctor/Phenotype, нативний crash-reporter, daily-ping планувальник і рекламний reporting-widget — менше wake-up'ів, мережі та батареї |
 | `Disable Cloud Backup` | Прибирає `allowBackup`/`backupAgent`/`dataExtractionRules` з манифеста, щоб словник і налаштування не потрапляли в Google Drive |
 | `Unlock All Themes` | Розгортає кожну категорію тем повністю: замість одного ряду + картки «Show more» показує всі теми одразу (хук `Lvjr;->p`, заміна ліміту на 10000) |
-| `Theme Studio` | Кастомна палітра з живим прев'ю: фон клавіатури, клавіші, підписи та цифри. У розділі «Тема» Gboard з'являється плаваюча кнопка **Theme Studio**, яка відкриває панель налаштувань; кольори примусово застосовуються хуками `SoftKeyboardView.onLayout` і `SoftKeyView.onDraw` |
+| `Theme Studio` | Кастомна палітра з живим прев'ю: фон клавіатури, клавіші, підписи та цифри. Налаштовується у розділі PixelBoard patches → Theme Studio; кольори примусово застосовуються хуками `SoftKeyboardView.onLayout` і `SoftKeyView.onDraw` |
 | `Infinite Clipboard` | Прибирає годинний TTL буфера (`Llcs;->a(Context)` → `Long.MAX_VALUE`), періодичне очищення (`Lldo;->g()`) і обрізання історії до 100 записів (`Llcs;->k`) |
 | `Secure Clipboard Vault` | Шифрує історію буфера (AES-GCM, ключ в Android Keystore) у `getNoBackupFilesDir()`; переживає перезавантаження й оновлення застосунку, не потрапляє в бекапи |
 | `Clipboard History` | Браузер зашифрованого сховища в налаштуваннях патчів: пошук по тексту, копіювання запису назад у буфер і видалення окремих елементів |
@@ -141,7 +141,7 @@ Storage: [`docs/ANALYSIS-UK.md`](docs/ANALYSIS-UK.md).
 GBoard/
 ├── patches/                     # Kotlin-джерела патчів + готовий бандл
 │   ├── GBoard.mpp               # зібраний патч-бандл (для Morphe Manager)
-│   ├── patches-1.3.2.mpp        # версійна копія бандла
+│   ├── patches-1.3.3.mpp        # версійна копія бандла
 │   ├── patches-bundle.json      # метадані репозиторію Morphe
 │   ├── patches-list.json        # інвентар патчів
 │   ├── src/main/kotlin/...      # features/*, registry/*, shared/*
@@ -158,7 +158,7 @@ GBoard/
 ├── patches-bundle.json          # ті самі метадані (генеруються в корінь)
 ├── patches-list.json            # той самий інвентар (генерується в корінь)
 ├── options.json                 # пресети патчів для patcher.jar
-├── prebuilt/                    # готовий .mpp 1.3.2 (офлайн-фолбек)
+├── prebuilt/                    # готовий .mpp 1.3.3 (офлайн-фолбек)
 ├── tools/patcher.jar            # Morphe CLI patcher
 ├── input/                       # сюди кладеться gboard.apk (локально, не в git)
 ├── output/                      # локальний результат патчингу

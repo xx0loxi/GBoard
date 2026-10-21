@@ -1,7 +1,7 @@
 {
   "name": "GBoard Patches",
-  "version": "1.3.2",
-  "download_url": "https://github.com/xx0loxi/GBoard/releases/download/1.3.2/patches-1.3.2.mpp",
+  "version": "1.3.3",
+  "download_url": "https://github.com/xx0loxi/GBoard/releases/download/1.3.3/patches-1.3.3.mpp",
   "description": "Custom Gboard patches with Gemini AI, Rambler Voice, Writing Tools, themes, and encrypted clipboard history.",
   "patches": [
     {
@@ -144,7 +144,7 @@
     },
     {
       "name": "Theme Studio",
-      "description": "Custom keyboard palette with live preview: background, keys, label text and digit colors, opened from a floating Theme Studio button in the Theme section.",
+      "description": "Custom keyboard palette with live preview: background, keys, label text and digit colors, configured in the PixelBoard patches settings screen.",
       "use": false,
       "dependencies": [],
       "compatiblePackages": {

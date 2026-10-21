@@ -23,8 +23,7 @@ import com.akshaykadam.pixelboard.extension.R;
 import com.akshaykadam.pixelboard.extension.settings.GboardSettingsText;
 
 /**
- * Shared color picker used by the Theme Studio settings screen and by the Theme section header
- * injected into Gboard's theme listing.
+ * Color picker used by the Theme Studio settings screen.
  */
 public final class GboardThemeColorDialog {
     private static final int[] PRESET_COLORS = new int[]{

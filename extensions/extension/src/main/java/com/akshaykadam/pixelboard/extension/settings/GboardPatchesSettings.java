@@ -10,6 +10,8 @@ public final class GboardPatchesSettings {
     public static final String DEFAULT_SETTINGS_UI_LANGUAGE =
             GboardSettingsLocaleManager.LANGUAGE_SYSTEM;
 
+    private static volatile Context cachedDeviceProtectedContext;
+
     private GboardPatchesSettings() {
     }
 
@@ -20,19 +22,25 @@ public final class GboardPatchesSettings {
             throw new IllegalStateException("Context required for Gboard patch settings.");
         }
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            try {
-                if (!lookupContext.isDeviceProtectedStorage()) {
-                    Context deContext = lookupContext.createDeviceProtectedStorageContext();
-                    if (deContext != null) {
-                        try {
-                            deContext.moveSharedPreferencesFrom(lookupContext, PREF_FILE);
-                        } catch (Throwable ignored) {
-                            // May fail if credential storage is locked during Direct Boot before unlock.
+            Context deContext = cachedDeviceProtectedContext;
+            if (deContext == null) {
+                try {
+                    if (!lookupContext.isDeviceProtectedStorage()) {
+                        deContext = lookupContext.createDeviceProtectedStorageContext();
+                        if (deContext != null) {
+                            try {
+                                deContext.moveSharedPreferencesFrom(lookupContext, PREF_FILE);
+                            } catch (Throwable ignored) {
+                                // May fail if credential storage is locked during Direct Boot before unlock.
+                            }
+                            cachedDeviceProtectedContext = deContext;
                         }
-                        lookupContext = deContext;
                     }
+                } catch (Throwable ignored) {
                 }
-            } catch (Throwable ignored) {
+            }
+            if (deContext != null) {
+                lookupContext = deContext;
             }
         }
         return lookupContext.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
