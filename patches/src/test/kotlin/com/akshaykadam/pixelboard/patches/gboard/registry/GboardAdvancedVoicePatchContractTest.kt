@@ -27,13 +27,7 @@ class GboardAdvancedVoicePatchContractTest {
         val compatiblePackages = row.getAsJsonObject("compatiblePackages")
         assertEquals(setOf(GBOARD_PACKAGE), compatiblePackages.keySet())
         assertEquals(
-            listOf(
-                GBOARD_VERSION,
-                GBOARD_VERSION_1831,
-                GBOARD_VERSION_1831_RELEASE,
-                GBOARD_VERSION_1841_RELEASE,
-                GBOARD_VERSION_1853_BETA,
-            ),
+            listOf(GBOARD_VERSION_1853_BETA),
             compatiblePackages.getAsJsonArray(GBOARD_PACKAGE).map { it.asString },
         )
     }

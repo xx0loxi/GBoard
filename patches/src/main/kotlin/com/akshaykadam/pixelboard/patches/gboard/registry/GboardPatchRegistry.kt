@@ -137,6 +137,20 @@ val gboardPackageRenamePatch = gboardPublicResourcePatch(
 }
 
 object GboardPublishedPatchCatalog {
+    const val PUBLISHED_NAME = "GBoard Patches"
+    const val PUBLISHED_DESCRIPTION =
+        "Custom Gboard patches with Gemini AI, Rambler Voice, and Writing Tools."
+    const val PUBLISHED_DOWNLOAD_URL =
+        "https://github.com/xx0loxi/GBoard/releases/download/1.1.0/patches-1.2.0.mpp"
+
+    /**
+     * Versions advertised in the published listing. The bundle itself still admits every
+     * version in [COMPATIBILITY_GBOARD]; the listing only offers the current release target.
+     */
+    val publishedVersionNames: List<String> = listOf(
+        "18.5.3.993608717-beta-arm64-v8a",
+    )
+
     val publishedRegistrations: Set<Patch<*>> = linkedSetOf(
         gboardAdvancedVoiceTypingPatch,
         gboardAiWritingToolsPatch,
@@ -153,7 +167,9 @@ object GboardPublishedPatchCatalog {
                 use = patch.use,
                 dependencies = patch.dependencies.mapNotNull { dependency -> dependency.name }.sorted(),
                 compatiblePackages = patch.compatiblePackages?.associate { (packageName, versions) ->
-                    packageName to versions
+                    packageName to versions?.let { admitted ->
+                        publishedVersionNames.filterTo(linkedSetOf()) { name -> name in admitted }
+                    }
                 },
                 options = patch.options.values.map { option ->
                     PublishedPatch.Option(
@@ -174,7 +190,10 @@ object GboardPublishedPatchCatalog {
             .setPrettyPrinting()
             .create()
         val inventory = JsonObject().apply {
+            addProperty("name", PUBLISHED_NAME)
             addProperty("version", version)
+            addProperty("download_url", PUBLISHED_DOWNLOAD_URL)
+            addProperty("description", PUBLISHED_DESCRIPTION)
             add("patches", gson.toJsonTree(publishedPatches))
         }
 

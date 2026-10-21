@@ -52,13 +52,7 @@ class GboardSignatureBypassPatchContractTest {
         val packages = row.getAsJsonObject("compatiblePackages")
         assertEquals(setOf(GBOARD_PACKAGE), packages.keySet())
         assertEquals(
-            listOf(
-                TARGET_VERSION,
-                TARGET_VERSION_1831,
-                TARGET_VERSION_1831_RELEASE,
-                TARGET_VERSION_1841_RELEASE,
-                TARGET_VERSION_1853_BETA,
-            ),
+            listOf(TARGET_VERSION_1853_BETA),
             packages.getAsJsonArray(GBOARD_PACKAGE).map { it.asString },
         )
     }

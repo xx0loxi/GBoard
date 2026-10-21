@@ -51,13 +51,7 @@ class GboardPublishedPatchCatalogContractTest {
         }
         assertTrue(aiWriting.get("use").asBoolean)
         assertEquals(
-            listOf(
-                "18.0.3.954559732-release-arm64-v8a",
-                "18.3.1.977415014-beta-arm64-v8a",
-                "18.3.1.977415014-release-arm64-v8a",
-                "18.4.1.985164140-release-arm64-v8a",
-                "18.5.3.993608717-beta-arm64-v8a",
-            ),
+            listOf("18.5.3.993608717-beta-arm64-v8a"),
             aiWriting.getAsJsonObject("compatiblePackages")
                 .getAsJsonArray("com.google.android.inputmethod.latin")
                 .map { version -> version.asString },
@@ -65,7 +59,7 @@ class GboardPublishedPatchCatalogContractTest {
     }
 
     @Test
-    fun catalogUsesOnlyTheGeneratedTargetAdmission() {
+    fun catalogPublishesOnlyTheDistributionTargets() {
         val patches = generatedPublishedPatches()
 
         assertMatchesPublishedRegistrationCount(patches.size)
@@ -75,8 +69,13 @@ class GboardPublishedPatchCatalogContractTest {
                 patch.getAsJsonObject("compatiblePackages").keySet()
             }.toSet(),
         )
+        assertTrue(
+            GboardTargetAdmission.versionNames.containsAll(
+                GboardPublishedPatchCatalog.publishedVersionNames,
+            ),
+        )
         assertEquals(
-            GboardTargetAdmission.versionNames.toSet(),
+            GboardPublishedPatchCatalog.publishedVersionNames.toSet(),
             patches.flatMap { patch ->
                 patch.getAsJsonObject("compatiblePackages")
                     .getAsJsonArray(GboardTargetAdmission.packageName)

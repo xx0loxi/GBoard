@@ -89,10 +89,6 @@ class GboardAiWritingToolsPatchRegistrySourceTest {
         assertTrue(writingTools.getAsJsonArray("dependencies").isEmpty)
         assertEquals(
             listOf(
-                "18.0.3.954559732-release-arm64-v8a",
-                "18.3.1.977415014-beta-arm64-v8a",
-                "18.3.1.977415014-release-arm64-v8a",
-                "18.4.1.985164140-release-arm64-v8a",
                 "18.5.3.993608717-beta-arm64-v8a",
             ),
             writingTools.getAsJsonObject("compatiblePackages")

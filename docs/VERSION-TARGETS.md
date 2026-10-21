@@ -10,11 +10,12 @@
 | `18.4.1.985164140-release-arm64-v8a` | **основна** | signature `Lryi;`, Rambler 18.4.1, flag getter `Lodx;` |
 | `18.5.3.993608717-beta-arm64-v8a` | **підтримується, перевірено патчингом** | signature `Lakft;`, Rambler 18.5.3, flag getter `Ladbx;` |
 
-Список версій, які Morphe Manager вважає сумісними, генерується з
+Список версій, які Morphe Manager вважає сумісними всередині бандла, походить з
 `DEFAULT_ARTIFACT_IDENTITY` у
-`patches/src/bindingCompiler/kotlin/com/akshaykadam/pixelboard/tools/bindings/GboardTargetBuildCompiler.kt`.
-Він же потрапляє в `patches/src/main/resources/patches-list.json` і
-`GboardTargetAdmission.versionNames`.
+`patches/src/bindingCompiler/kotlin/com/akshaykadam/pixelboard/tools/bindings/GboardTargetBuildCompiler.kt`
+і `GboardTargetAdmission.versionNames`. Публічний перелік у
+`patches/src/main/resources/patches-list.json` навмисно вужчий — його задає
+`GboardPublishedPatchCatalog.publishedVersionNames` (наразі лише 18.5.3).
 
 ## 2. Fingerprint-и по версіях
 
@@ -133,8 +134,8 @@ apktool d -f -o /tmp/gboard-new input/gboard.apk     # smali + res
 ### Крок 1. Додати версію до admission
 
 `GboardTargetBuildCompiler.kt` → `DEFAULT_ARTIFACT_IDENTITY.versionNames`,
-потім `patches/src/main/resources/patches-list.json` (4 записи) і контрактні
-тести в `patches/src/test/kotlin/.../registry/`.
+потім `GboardPublishedPatchCatalog.publishedVersionNames` (публічний перелік,
+4 записи) і контрактні тести в `patches/src/test/kotlin/.../registry/`.
 
 ### Крок 2. Знайти реальні цілі
 

@@ -18,6 +18,11 @@ Tools / Writing Tools V2, сучасні підказки перевірки о�
 | Java | JDK 21+ (збірка перевірена на JDK 21 і 25; тести — на JDK 21) |
 | Android SDK | потрібен для модуля `:extensions:extension` |
 
+> Публічний `patches-list.json` заявляє сумісність лише з 18.5.3 — саме цей
+> перелік бачить Morphe Manager. Усередині бандла патчі лишаються сумісними з
+> усіма версіями з таблиці (`COMPATIBILITY_GBOARD`), тож старіші APK теж
+> патчаться, якщо застосувати `.mpp` напряму.
+
 > **18.5.3:** fingerprint-и зняті з реального APK
 > `18.5.3.993608717-beta-arm64-v8a` (versionCode `176049654`), а не вгадані:
 > signature bypass `Lakft;`, геттер прапорців `Ladbx;`, Rambler
