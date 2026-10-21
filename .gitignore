@@ -32,3 +32,9 @@ input/splits*/
 
 # Scratch directory
 scratch/
+
+# Reverse-engineering dumps (regenerated on demand, never commit)
+output/stock-*/
+output/patched-dex-*/
+output/*-stock.txt
+output/settings-xmltree.txt

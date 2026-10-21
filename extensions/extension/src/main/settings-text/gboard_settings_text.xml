@@ -858,6 +858,12 @@
     <string name="gboard_patches_theme_studio_reset_summary">
         <translation locale="en">Restore the default graphite palette.</translation>
     </string>
+    <string name="gboard_patches_theme_studio_reset_done">
+        <translation locale="en">Default palette restored.</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_more_options">
+        <translation locale="en">More options</translation>
+    </string>
     <string name="gboard_patches_theme_studio_preview_title">
         <translation locale="en">Live keyboard preview</translation>
     </string>

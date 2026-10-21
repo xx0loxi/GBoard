@@ -118,7 +118,7 @@
     },
     {
       "name": "Theme Studio",
-      "description": "Custom keyboard palette with live preview: background, keys, label text and digit colors.",
+      "description": "Custom keyboard palette with live preview: background, keys, label text and digit colors, configured directly inside the Theme section.",
       "use": false,
       "dependencies": [],
       "compatiblePackages": {

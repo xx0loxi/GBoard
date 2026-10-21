@@ -25,6 +25,8 @@ internal enum class RuntimeCallId(internal val encodedAbi: String) {
     CLIPBOARD_SYNC_RUNTIME_SYNC_ON_START_INPUT_VIEW("Lcom/akshaykadam/pixelboard/extension/clipboard/GboardClipboardSyncRuntime;->syncOnStartInputView(Ljava/lang/Object;)V"),
     CLIPBOARD_VAULT_RUNTIME_CAPTURE("Lcom/akshaykadam/pixelboard/extension/clipboard/GboardClipboardVaultRuntime;->capture(Landroid/content/Context;Landroid/content/ClipData;)V"),
     THEME_STUDIO_RUNTIME_APPLY_KEYBOARD_COLORS("Lcom/akshaykadam/pixelboard/extension/theme/GboardThemeStudioRuntime;->applyKeyboardColors(Landroid/view/View;)V"),
+    THEME_STUDIO_RUNTIME_APPLY_KEY_COLORS("Lcom/akshaykadam/pixelboard/extension/theme/GboardThemeStudioRuntime;->applyKeyColors(Landroid/view/View;)V"),
+    THEME_STUDIO_RUNTIME_INSTALL_THEME_SECTION_HEADER("Lcom/akshaykadam/pixelboard/extension/theme/GboardThemeStudioRuntime;->installThemeSectionHeader(Landroid/view/View;)Landroid/view/View;"),
     FEATURES_MENU_ACCESSIBILITY_ON_INFLATE("Lcom/akshaykadam/pixelboard/extension/accessibility/GboardFeaturesMenuAccessibilityRuntime;->onAccessPointsPanelInflated(Landroid/view/View;)V"),
     FEATURES_MENU_ACCESSIBILITY_ON_VISIBILITY_CHANGED("Lcom/akshaykadam/pixelboard/extension/accessibility/GboardFeaturesMenuAccessibilityRuntime;->onAccessPointsPanelVisibilityChanged(Landroid/view/View;)V"),
 }
