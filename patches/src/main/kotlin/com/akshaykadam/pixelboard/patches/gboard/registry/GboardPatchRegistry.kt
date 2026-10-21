@@ -15,6 +15,7 @@ import com.akshaykadam.pixelboard.patches.shared.stringOption
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.akshaykadam.pixelboard.patches.gboard.features.advancedvoice.gboardAdvancedVoiceFeatureMarkerPatch
+import com.akshaykadam.pixelboard.patches.gboard.features.clipboard.gboardClipboardHistoryPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.clipboard.gboardClipboardVaultPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.clipboard.gboardInfiniteClipboardPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.optimizations.gboardDisableCloudBackupPatch
@@ -23,6 +24,7 @@ import com.akshaykadam.pixelboard.patches.gboard.features.packagerename.applyGbo
 import com.akshaykadam.pixelboard.patches.gboard.features.packagerename.gboardPackageRenameResourcePatch
 import com.akshaykadam.pixelboard.patches.gboard.features.packagerename.isValidGboardAppDisplayName
 import com.akshaykadam.pixelboard.patches.gboard.features.signaturebypass.gboardSignatureBypassBytecodePatch
+import com.akshaykadam.pixelboard.patches.gboard.features.sound.gboardSoundHapticsPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.theme.gboardThemeStudioPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.theme.gboardUnlockThemesPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.writingtools.gboardAiWritingToolsFeatureMarkerPatch
@@ -148,7 +150,7 @@ object GboardPublishedPatchCatalog {
         "Custom Gboard patches with Gemini AI, Rambler Voice, Writing Tools, themes, " +
             "and encrypted clipboard history."
     const val PUBLISHED_DOWNLOAD_URL =
-        "https://github.com/xx0loxi/GBoard/releases/download/1.3.1/patches-1.3.1.mpp"
+        "https://github.com/xx0loxi/GBoard/releases/download/1.3.2/patches-1.3.2.mpp"
 
     /**
      * Versions advertised in the published listing. The bundle itself still admits every
@@ -167,8 +169,10 @@ object GboardPublishedPatchCatalog {
         gboardDisableCloudBackupPatch,
         gboardInfiniteClipboardPatch,
         gboardClipboardVaultPatch,
+        gboardClipboardHistoryPatch,
         gboardThemeStudioPatch,
         gboardUnlockThemesPatch,
+        gboardSoundHapticsPatch,
     ).filterTo(linkedSetOf()) { patch -> patch.name != null }
 
     val publishedRegistrations: Set<Patch<*>> = linkedSetOf(

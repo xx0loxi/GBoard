@@ -65,6 +65,7 @@ public final class GboardClipboardVault {
     private static final int TAG_BITS = 128;
     private static final int MAX_TEXT_LENGTH = 20000;
     private static final long DUPLICATE_WINDOW_MS = 5000L;
+    private static final Object FILE_LOCK = new Object();
 
     private GboardClipboardVault() {
     }
@@ -108,25 +109,27 @@ public final class GboardClipboardVault {
         }
 
         try {
-            SharedPreferences preferences = preferences(context);
-            String hash = sha256(value);
-            long now = System.currentTimeMillis();
-            long lastAt = preferences.getLong(PREF_LAST_AT, 0L);
-            if (hash.equals(preferences.getString(PREF_LAST_HASH, null))
-                    && now - lastAt < DUPLICATE_WINDOW_MS) {
-                return;
+            synchronized (FILE_LOCK) {
+                SharedPreferences preferences = preferences(context);
+                String hash = sha256(value);
+                long now = System.currentTimeMillis();
+                long lastAt = preferences.getLong(PREF_LAST_AT, 0L);
+                if (hash.equals(preferences.getString(PREF_LAST_HASH, null))
+                        && now - lastAt < DUPLICATE_WINDOW_MS) {
+                    return;
+                }
+
+                JSONObject payload = new JSONObject();
+                payload.put("t", now);
+                payload.put("x", value);
+                payload.put("s", 0);
+                appendRecord(context, payload.toString().getBytes(StandardCharsets.UTF_8));
+
+                preferences.edit()
+                        .putString(PREF_LAST_HASH, hash)
+                        .putLong(PREF_LAST_AT, now)
+                        .apply();
             }
-
-            JSONObject payload = new JSONObject();
-            payload.put("t", now);
-            payload.put("x", value);
-            payload.put("s", 0);
-            appendRecord(context, payload.toString().getBytes(StandardCharsets.UTF_8));
-
-            preferences.edit()
-                    .putString(PREF_LAST_HASH, hash)
-                    .putLong(PREF_LAST_AT, now)
-                    .apply();
         } catch (Throwable throwable) {
             Log.w(TAG, "Failed to archive clipboard item", throwable);
         }
@@ -160,15 +163,17 @@ public final class GboardClipboardVault {
             return;
         }
         try {
-            File file = vaultFile(context);
-            if (file != null && file.isFile() && !file.delete()) {
-                Log.w(TAG, "Failed to delete vault file");
+            synchronized (FILE_LOCK) {
+                File file = vaultFile(context);
+                if (file != null && file.isFile() && !file.delete()) {
+                    Log.w(TAG, "Failed to delete vault file");
+                }
+                preferences(context).edit()
+                        .remove(PREF_LAST_HASH)
+                        .remove(PREF_LAST_AT)
+                        .remove(PREF_RESTORE_WATERMARK)
+                        .apply();
             }
-            preferences(context).edit()
-                    .remove(PREF_LAST_HASH)
-                    .remove(PREF_LAST_AT)
-                    .remove(PREF_RESTORE_WATERMARK)
-                    .apply();
         } catch (Throwable throwable) {
             Log.w(TAG, "Failed to wipe clipboard vault", throwable);
         }
@@ -234,54 +239,151 @@ public final class GboardClipboardVault {
         return inserted;
     }
 
+    public static boolean deleteEntry(Context context, Entry target) {
+        if (context == null || target == null) {
+            return false;
+        }
+        try {
+            synchronized (FILE_LOCK) {
+                List<Entry> entries = readEntries(context);
+                List<Entry> remaining = new ArrayList<Entry>(entries.size());
+                boolean removed = false;
+                for (Entry entry : entries) {
+                    if (!removed && entry.index == target.index
+                            && entry.timestamp == target.timestamp
+                            && entry.text.equals(target.text)) {
+                        removed = true;
+                        continue;
+                    }
+                    remaining.add(entry);
+                }
+                if (!removed) {
+                    return false;
+                }
+                rewriteEntries(context, remaining);
+                return true;
+            }
+        } catch (Throwable throwable) {
+            Log.w(TAG, "Failed to delete clipboard vault entry", throwable);
+            return false;
+        }
+    }
+
     public static List<Entry> readEntries(Context context) {
         File file = vaultFile(context);
         if (file == null || !file.isFile() || file.length() == 0L) {
             return Collections.emptyList();
         }
         List<Entry> entries = new ArrayList<Entry>();
-        try (DataInputStream input = new DataInputStream(new FileInputStream(file))) {
-            byte[] magic = new byte[MAGIC.length];
-            input.readFully(magic);
-            if (!java.util.Arrays.equals(magic, MAGIC)) {
-                return Collections.emptyList();
-            }
-            int version = input.readInt();
-            if (version != FORMAT_VERSION) {
-                return Collections.emptyList();
-            }
-            while (true) {
-                int cipherLength;
-                try {
-                    cipherLength = input.readInt();
-                } catch (EOFException endOfFile) {
-                    break;
+        synchronized (FILE_LOCK) {
+            try (DataInputStream input = new DataInputStream(new FileInputStream(file))) {
+                byte[] magic = new byte[MAGIC.length];
+                input.readFully(magic);
+                if (!java.util.Arrays.equals(magic, MAGIC)) {
+                    return Collections.emptyList();
                 }
-                if (cipherLength <= 0 || cipherLength > 4 * 1024 * 1024) {
-                    break;
+                int version = input.readInt();
+                if (version != FORMAT_VERSION) {
+                    return Collections.emptyList();
                 }
-                byte[] nonce = new byte[NONCE_LENGTH];
-                input.readFully(nonce);
-                byte[] ciphertext = new byte[cipherLength];
-                input.readFully(ciphertext);
-
-                try {
-                    Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-                    cipher.init(Cipher.DECRYPT_MODE, secretKey(), new GCMParameterSpec(TAG_BITS, nonce));
-                    String json = new String(cipher.doFinal(ciphertext), StandardCharsets.UTF_8);
-                    JSONObject payload = new JSONObject(json);
-                    String text = payload.optString("x", "");
-                    if (!text.isEmpty()) {
-                        entries.add(new Entry(payload.optLong("t", 0L), text));
+                while (true) {
+                    int cipherLength;
+                    try {
+                        cipherLength = input.readInt();
+                    } catch (EOFException endOfFile) {
+                        break;
                     }
-                } catch (Throwable throwable) {
-                    Log.w(TAG, "Skipping unreadable vault record", throwable);
+                    if (cipherLength <= 0 || cipherLength > 4 * 1024 * 1024) {
+                        break;
+                    }
+                    byte[] nonce = new byte[NONCE_LENGTH];
+                    input.readFully(nonce);
+                    byte[] ciphertext = new byte[cipherLength];
+                    input.readFully(ciphertext);
+
+                    try {
+                        Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+                        cipher.init(Cipher.DECRYPT_MODE, secretKey(), new GCMParameterSpec(TAG_BITS, nonce));
+                        String json = new String(cipher.doFinal(ciphertext), StandardCharsets.UTF_8);
+                        JSONObject payload = new JSONObject(json);
+                        String text = payload.optString("x", "");
+                        if (!text.isEmpty()) {
+                            entries.add(new Entry(entries.size(), payload.optLong("t", 0L), text));
+                        }
+                    } catch (Throwable throwable) {
+                        Log.w(TAG, "Skipping unreadable vault record", throwable);
+                    }
                 }
+            } catch (Throwable throwable) {
+                Log.w(TAG, "Failed to read clipboard vault", throwable);
             }
-        } catch (Throwable throwable) {
-            Log.w(TAG, "Failed to read clipboard vault", throwable);
         }
         return entries;
+    }
+
+    private static void rewriteEntries(Context context, List<Entry> entries) throws Exception {
+        File file = vaultFile(context);
+        if (file == null) {
+            throw new IllegalStateException("Vault storage is unavailable");
+        }
+        if (entries.isEmpty()) {
+            if (file.isFile() && !file.delete()) {
+                throw new IllegalStateException("Unable to delete the vault file");
+            }
+            preferences(context).edit()
+                    .remove(PREF_LAST_HASH)
+                    .remove(PREF_LAST_AT)
+                    .apply();
+            return;
+        }
+        File parent = file.getParentFile();
+        if (parent != null && !parent.isDirectory() && !parent.mkdirs()) {
+            throw new IllegalStateException("Unable to create vault directory");
+        }
+        File temporary = new File(parent, FILE_NAME + ".tmp");
+        try {
+            try (FileOutputStream fileOutput = new FileOutputStream(temporary, false);
+                    DataOutputStream output = new DataOutputStream(fileOutput)) {
+                output.write(MAGIC);
+                output.writeInt(FORMAT_VERSION);
+                for (Entry entry : entries) {
+                    JSONObject payload = new JSONObject();
+                    payload.put("t", entry.timestamp);
+                    payload.put("x", entry.text);
+                    payload.put("s", 0);
+
+                    byte[] nonce = new byte[NONCE_LENGTH];
+                    new SecureRandom().nextBytes(nonce);
+                    Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+                    cipher.init(Cipher.ENCRYPT_MODE, secretKey(),
+                            new GCMParameterSpec(TAG_BITS, nonce));
+                    byte[] ciphertext = cipher.doFinal(
+                            payload.toString().getBytes(StandardCharsets.UTF_8));
+
+                    output.writeInt(ciphertext.length);
+                    output.write(nonce);
+                    output.write(ciphertext);
+                }
+                output.flush();
+                fileOutput.getFD().sync();
+            }
+        } catch (Throwable throwable) {
+            //noinspection ResultOfMethodCallIgnored
+            temporary.delete();
+            throw throwable;
+        }
+        if (!temporary.renameTo(file)) {
+            if (file.isFile() && !file.delete()) {
+                //noinspection ResultOfMethodCallIgnored
+                temporary.delete();
+                throw new IllegalStateException("Unable to replace the vault file");
+            }
+            if (!temporary.renameTo(file)) {
+                //noinspection ResultOfMethodCallIgnored
+                temporary.delete();
+                throw new IllegalStateException("Unable to replace the vault file");
+            }
+        }
     }
 
     private static void appendRecord(Context context, byte[] plaintext) throws Exception {
@@ -398,10 +500,12 @@ public final class GboardClipboardVault {
     }
 
     public static final class Entry {
+        public final int index;
         public final long timestamp;
         public final String text;
 
-        Entry(long timestamp, String text) {
+        Entry(int index, long timestamp, String text) {
+            this.index = index;
             this.timestamp = timestamp;
             this.text = text;
         }

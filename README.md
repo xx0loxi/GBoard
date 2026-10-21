@@ -29,7 +29,7 @@ Tools / Writing Tools V2, сучасні підказки перевірки о�
 > signature bypass `Lakft;`, геттер прапорців `Ladbx;`, Rambler
 > `VoiceSettingsFragment->aD/ac/f/aF` + `Laaqf;->a` + `Lkrl;->e`, черга мов
 > `Lambj;->c`, кліпборд `Lldo;` (сховище, очищення, ліміт історії), теми
-> `Lvjr;->p`. Патчинг прогнано end-to-end, усі 10 патчів застосовуються.
+> `Lvjr;->p`. Патчинг прогнано end-to-end, усі 12 патчів застосовуються.
 > Деталі та процедура для наступних версій:
 > [`docs/VERSION-TARGETS.md`](docs/VERSION-TARGETS.md).
 
@@ -41,7 +41,7 @@ Tools / Writing Tools V2, сучасні підказки перевірки о�
 
 # Результат (публікується автоматично):
 #   patches/GBoard.mpp          <- стабільна назва для Morphe Manager / посилань
-#   patches/patches-1.3.1.mpp       <- версійна копія
+#   patches/patches-1.3.2.mpp       <- версійна копія
 #   patches/patches-bundle.json     <- метадані репозиторію Morphe
 #   patches/patches-list.json       <- інвентар патчів
 ```
@@ -104,7 +104,7 @@ AICore (оновлюється через Play), а не Gboard і не патч
 ```bash
 # Покласти стоковий Gboard APK у input/gboard.apk
 ./build.sh                 # або ./build.sh --rebuild
-# Результат: output/GBoard.apk, output/GBoard-1.3.1.apk
+# Результат: output/GBoard.apk, output/GBoard-1.3.2.apk
 ```
 
 ## Що всередині
@@ -123,6 +123,8 @@ AICore (оновлюється через Play), а не Gboard і не патч
 | `Theme Studio` | Кастомна палітра з живим прев'ю: фон клавіатури, клавіші, підписи та цифри. У розділі «Тема» Gboard з'являється плаваюча кнопка **Theme Studio**, яка відкриває панель налаштувань; кольори примусово застосовуються хуками `SoftKeyboardView.onLayout` і `SoftKeyView.onDraw` |
 | `Infinite Clipboard` | Прибирає годинний TTL буфера (`Llcs;->a(Context)` → `Long.MAX_VALUE`), періодичне очищення (`Lldo;->g()`) і обрізання історії до 100 записів (`Llcs;->k`) |
 | `Secure Clipboard Vault` | Шифрує історію буфера (AES-GCM, ключ в Android Keystore) у `getNoBackupFilesDir()`; переживає перезавантаження й оновлення застосунку, не потрапляє в бекапи |
+| `Clipboard History` | Браузер зашифрованого сховища в налаштуваннях патчів: пошук по тексту, копіювання запису назад у буфер і видалення окремих елементів |
+| `Sound & Haptics` | Перевизначає гучність звуку натискання та тривалість/силу вібрації у `PressEffectPlayerImpl` (`afsv`) без зміни власних налаштувань Gboard |
 | `GboardSpellCheckerChipsPatch` (внутрішній) | Форсує inline spell-checker chips та add-to-dictionary на Android 12+ |
 
 > **Про «преміум» теми.** У Gboard 18.5.3 немає платних/заблокованих вбудованих
@@ -139,7 +141,7 @@ Storage: [`docs/ANALYSIS-UK.md`](docs/ANALYSIS-UK.md).
 GBoard/
 ├── patches/                     # Kotlin-джерела патчів + готовий бандл
 │   ├── GBoard.mpp               # зібраний патч-бандл (для Morphe Manager)
-│   ├── patches-1.3.1.mpp        # версійна копія бандла
+│   ├── patches-1.3.2.mpp        # версійна копія бандла
 │   ├── patches-bundle.json      # метадані репозиторію Morphe
 │   ├── patches-list.json        # інвентар патчів
 │   ├── src/main/kotlin/...      # features/*, registry/*, shared/*
@@ -156,7 +158,7 @@ GBoard/
 ├── patches-bundle.json          # ті самі метадані (генеруються в корінь)
 ├── patches-list.json            # той самий інвентар (генерується в корінь)
 ├── options.json                 # пресети патчів для patcher.jar
-├── prebuilt/                    # готовий .mpp 1.3.1 (офлайн-фолбек)
+├── prebuilt/                    # готовий .mpp 1.3.2 (офлайн-фолбек)
 ├── tools/patcher.jar            # Morphe CLI patcher
 ├── input/                       # сюди кладеться gboard.apk (локально, не в git)
 ├── output/                      # локальний результат патчингу

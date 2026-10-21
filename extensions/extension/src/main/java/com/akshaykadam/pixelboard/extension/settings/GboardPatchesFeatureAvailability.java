@@ -15,6 +15,10 @@ public final class GboardPatchesFeatureAvailability {
             "com.akshaykadam.pixelboard.feature.theme_studio";
     public static final String FEATURE_CLIPBOARD_VAULT =
             "com.akshaykadam.pixelboard.feature.clipboard_vault";
+    public static final String FEATURE_SOUND_HAPTICS =
+            "com.akshaykadam.pixelboard.feature.sound_haptics";
+    public static final String FEATURE_CLIPBOARD_HISTORY =
+            "com.akshaykadam.pixelboard.feature.clipboard_history";
 
     private static final String TAG = "GboardPatches";
 

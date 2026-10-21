@@ -1,10 +1,12 @@
 package com.akshaykadam.pixelboard.patches.gboard.registry
 
 import com.google.gson.JsonParser
+import com.akshaykadam.pixelboard.patches.gboard.features.clipboard.gboardClipboardHistoryPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.clipboard.gboardClipboardVaultPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.clipboard.gboardInfiniteClipboardPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.optimizations.gboardDisableCloudBackupPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.optimizations.gboardPerformancePrivacyPatch
+import com.akshaykadam.pixelboard.patches.gboard.features.sound.gboardSoundHapticsPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.theme.gboardThemeStudioPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.theme.gboardUnlockThemesPatch
 import com.akshaykadam.pixelboard.patches.gboard.shared.generated.GboardTargetAdmission
@@ -19,7 +21,7 @@ class GboardPublishedPatchCatalogContractTest {
         val registrations = GboardPublishedPatchCatalog.publishedRegistrations
 
         assertTrue(registrations.isNotEmpty())
-        assertEquals(10, registrations.size)
+        assertEquals(12, registrations.size)
         assertEquals(registrations.size, registrations.map { patch -> patch.name }.distinct().size)
         assertSame(
             gboardAdvancedVoiceTypingPatch,
@@ -54,12 +56,20 @@ class GboardPublishedPatchCatalogContractTest {
             registrations.single { patch -> patch.name == "Secure Clipboard Vault" },
         )
         assertSame(
+            gboardClipboardHistoryPatch,
+            registrations.single { patch -> patch.name == "Clipboard History" },
+        )
+        assertSame(
             gboardThemeStudioPatch,
             registrations.single { patch -> patch.name == "Theme Studio" },
         )
         assertSame(
             gboardUnlockThemesPatch,
             registrations.single { patch -> patch.name == "Unlock All Themes" },
+        )
+        assertSame(
+            gboardSoundHapticsPatch,
+            registrations.single { patch -> patch.name == "Sound & Haptics" },
         )
     }
 
