@@ -30,7 +30,13 @@ class GboardSignatureBypassPatchContractTest {
         assertSame(COMPATIBILITY_GBOARD, compatibilities.single())
         assertEquals(GBOARD_PACKAGE, compatibilities.single().packageName)
         assertEquals(
-            listOf(TARGET_VERSION, TARGET_VERSION_1831, TARGET_VERSION_1831_RELEASE, TARGET_VERSION_1841_RELEASE),
+            listOf(
+                TARGET_VERSION,
+                TARGET_VERSION_1831,
+                TARGET_VERSION_1831_RELEASE,
+                TARGET_VERSION_1841_RELEASE,
+                TARGET_VERSION_1853_BETA,
+            ),
             compatibilities.single().targets.map { target -> target.version },
         )
 
@@ -46,7 +52,13 @@ class GboardSignatureBypassPatchContractTest {
         val packages = row.getAsJsonObject("compatiblePackages")
         assertEquals(setOf(GBOARD_PACKAGE), packages.keySet())
         assertEquals(
-            listOf(TARGET_VERSION, TARGET_VERSION_1831, TARGET_VERSION_1831_RELEASE, TARGET_VERSION_1841_RELEASE),
+            listOf(
+                TARGET_VERSION,
+                TARGET_VERSION_1831,
+                TARGET_VERSION_1831_RELEASE,
+                TARGET_VERSION_1841_RELEASE,
+                TARGET_VERSION_1853_BETA,
+            ),
             packages.getAsJsonArray(GBOARD_PACKAGE).map { it.asString },
         )
     }
@@ -94,6 +106,7 @@ class GboardSignatureBypassPatchContractTest {
         const val TARGET_VERSION_1831 = "18.3.1.977415014-beta-arm64-v8a"
         const val TARGET_VERSION_1831_RELEASE = "18.3.1.977415014-release-arm64-v8a"
         const val TARGET_VERSION_1841_RELEASE = "18.4.1.985164140-release-arm64-v8a"
+        const val TARGET_VERSION_1853_BETA = "18.5.3.993608717-beta-arm64-v8a"
         const val SIGNATURE_BYPASS_DESCRIPTION =
             "Bypass Gboard signature whitelist checks and force them to pass."
         const val SIGNATURE_PATCH_PATH =

@@ -78,6 +78,27 @@ private val RAMBLER_1831_TARGETS = RamblerTargets(
     defaultSelection = method("Lkcm;", "ge", emptyList(), "V"),
 )
 
+private val RAMBLER_1853_BETA_TARGETS = RamblerTargets(
+    layout = method(VOICE_SETTINGS, "aD", emptyList(), "I"),
+    setup = method(VOICE_SETTINGS, "ac", emptyList(), "V"),
+    create = method(VOICE_SETTINGS, "f", listOf("Landroid/os/Bundle;"), "V"),
+    selectionWrite = method(
+        VOICE_SETTINGS,
+        "aF",
+        listOf(
+            "Z",
+            "Lahpn;",
+            "Lcom/google/android/libraries/inputmethod/preferencewidgets/" +
+                "CustomSelectorWithWidgetPreference;",
+            "Lcom/google/android/libraries/inputmethod/preferencewidgets/" +
+                "CustomSelectorWithWidgetPreference;",
+        ),
+        "V",
+    ),
+    selectionRead = method("Laaqf;", "a", listOf("Landroid/content/Context;"), "Z"),
+    defaultSelection = method("Lkrl;", "e", emptyList(), "V"),
+)
+
 private val RAMBLER_1841_TARGETS = RamblerTargets(
     layout = method(VOICE_SETTINGS, "aC", emptyList(), "I"),
     setup = method(VOICE_SETTINGS, "ac", emptyList(), "V"),
@@ -114,6 +135,11 @@ internal val gboardRambler1803OfficialSelectorPatch = bytecodePatch(
 
     execute {
         val targets = when {
+            // 18.5.3 beta shares the 18.3.1 layout accessor (aD), so the selector
+            // writer signature is the discriminator.
+            findMutableMethodOrNull(RAMBLER_1853_BETA_TARGETS.selectionWrite) != null &&
+                findMutableMethodOrNull(RAMBLER_1853_BETA_TARGETS.layout) != null ->
+                RAMBLER_1853_BETA_TARGETS
             findMutableMethodOrNull(RAMBLER_1841_TARGETS.layout) != null -> RAMBLER_1841_TARGETS
             findMutableMethodOrNull(RAMBLER_1831_TARGETS.layout) != null -> RAMBLER_1831_TARGETS
             findMutableMethodOrNull(RAMBLER_1803_TARGETS.layout) != null -> RAMBLER_1803_TARGETS

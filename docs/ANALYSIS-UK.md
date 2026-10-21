@@ -2,7 +2,7 @@
 
 Документ описує, як саме працюють патчі, перенесені з
 [PixelBoard](https://github.com/Akshayykadam/PixelBoard) (commit `9f7dcb0`, версія
-патчів 1.2.0), які прапорці та сховища форсуються, і що потрібно для переходу на
+патчів 1.2.0), які прапорці та сховища форсуються, і як додано підтримку
 Gboard 18.5.3.
 
 ---
@@ -48,14 +48,17 @@ Gboard DEX                       виклики extension-методів з па
 ### 2.1 Що патчиться (`GboardRambler1803OfficialSelectorPatch`)
 
 Ціль — `com.google.android.apps.inputmethod.latin.preference.VoiceSettingsFragment`.
-Для кожної версії задані обфусковані імена (18.4.1):
+Для кожної версії задані обфусковані імена:
 
-| Роль | Ціль 18.4.1 |
-| --- | --- |
-| layout / setup / create | `VoiceSettingsFragment->aC()I`, `ac()V`, `f(Bundle)V` |
-| запис вибору | `VoiceSettingsFragment->aE(Z,Lqou;,…)V` |
-| читання вибору | `Lmvq;->a(Landroid/content/Context;)Z` |
-| default selection | `Lfde;->hT()V` |
+| Роль | 18.4.1 | 18.5.3 beta |
+| --- | --- | --- |
+| layout / setup / create | `VoiceSettingsFragment->aC()I`, `ac()V`, `f(Bundle)V` | `VoiceSettingsFragment->aD()I`, `ac()V`, `f(Bundle)V` |
+| запис вибору | `VoiceSettingsFragment->aE(Z,Lqou;,…)V` | `VoiceSettingsFragment->aF(Z,Lahpn;,…)V` |
+| читання вибору | `Lmvq;->a(Landroid/content/Context;)Z` | `Laaqf;->a(Landroid/content/Context;)Z` |
+| default selection | `Lfde;->hT()V` | `Lkrl;->e()V` |
+
+У 18.5.3 аксесор layout (`aD()I`) збігається з 18.3.1, тому версія визначається
+саме за сигнатурою `aF(Z,Lahpn;,…)V` — вона унікальна.
 
 Патч вставляє виклики runtime:
 
@@ -66,7 +69,9 @@ Gboard DEX                       виклики extension-методів з па
 
 Додатково `suppressRamblerFeedbackAccessPoint()` знаходить провайдер
 `AgenticDictationFeedbackAccessPointProvider` і повертає `false`, прибираючи
-«compliance»-іконку.
+«compliance»-іконку. У 18.5.3 провайдер переїхав у `Lkja;` (виклик через
+`Lator;->i(String)`), і signature-ланцюжок патча не збігається, тому хук
+**тихо пропускається** — це косметична фіча, на роботу Rambler вона не впливає.
 
 ### 2.2 Прапорці
 
@@ -116,6 +121,7 @@ Phenotype-прапорця** і повертають підмінений рез
 | 18.3.1 beta | `Lacps;` | `a` |
 | 18.3.1 release | `Lobw;` | `a` |
 | 18.4.1 release | `Lodx;` | `a` |
+| 18.5.3 beta | `Ladbx;` | `a` (значення — `Ladck;->a:Ljava/lang/Object;`) |
 
 Патч вставляє після stock-результату виклик
 `GboardAdvancedVoice1803Runtime.afterFlagValue(receiver, result)` /
@@ -126,9 +132,10 @@ Phenotype-прапорця** і повертають підмінений рез
 ### 2.5 Інші хуки Advanced Voice
 
 * `GboardAdvancedVoice1831LanguageDownloadGuardPatch` — `LanguageDownloadQueue`
-  (`Lsqk;->c(String,Lsrc;,Consumer;)V` у 18.4.1): кожен мовний пакет ставиться в
-  чергу один раз за процес (`LanguageDownloadGuard.shouldSkip`), інакше
-  «тихе» завантаження нескінченно перезапускається.
+  (`Lsqk;->c(String,Lsrc;,Consumer;)V` у 18.4.1, `Lambj;->c(String,Lamco;,Consumer;)V`
+  у 18.5.3): кожен мовний пакет ставиться в чергу один раз за процес
+  (`LanguageDownloadGuard.shouldSkip`), інакше «тихе» завантаження нескінченно
+  перезапускається.
 * `GboardAdvancedVoice1803ZhTwPatch` — додає `zh-TW` до списку підтримуваних
   локалей і коригує formatter.
 * `GboardAdvancedVoiceFeatureMarkerPatch` — маркер фічі в manifest +
@@ -229,6 +236,9 @@ enable_writing_tools_voice_commands
 4. Захист від повторного патчингу: перевірка, що третя інструкція вже `if-*` /
    `return`.
 
+У 18.5.3 пошук знаходить `Laieo;->a(Context,TextServicesManager)Z` — патч
+застосовується без змін у коді, бо прив'язки до обфускованого імені немає.
+
 Патч залежить від extension-carrier, бо runtime пише
 `spellchecker_enable_chips_ui = true` у prefs.
 
@@ -270,10 +280,12 @@ registration теж містить ім'я пакета, інакше GMS не �
 | 18.3.1 beta | `Lajpz;` | `a(Context,String)Z` |
 | 18.3.1 release | `Lrvl;` | `a(Context,String)Z` |
 | 18.4.1 release | `Lryi;` | `a(Context,String)Z` |
+| 18.5.3 beta | `Lakft;` | `a(Context,String)Z` |
 
 Далі `applyVerified` робить перевірку форми методу (8 регістрів, рівно 3
 `RETURN`, один виклик `MessageDigest`/`Arrays.equals`, конкретні поля
-`e/d/c:[B` + `Lrxk;->b:Z`, літерали `(v0,3) (v3,0) (v4,1) (v5,2)`) і лише потім
+`e/d/c:[B` + `Lrxk;->b:Z` (у 18.5.3 — `Lakeh;->b:Z`), літерали
+`(v0,3) (v3,0) (v4,1) (v5,2)`) і лише потім
 замінює кожен `return vX` на `const/4 vX, 0x1; return vX`. Якщо форма не збігається
 — патч падає з помилкою, а не псує APK. Це і є «обхід перевірок підпису».
 
@@ -283,12 +295,13 @@ registration теж містить ім'я пакета, інакше GMS не �
 
 | Що | Де | Навіщо |
 | --- | --- | --- |
-| Phenotype flag getter | `Lodx;->g()` (18.4.1) + `afterFlagValue` | підміна значень у пам'яті, без запису в GMS |
+| Phenotype flag getter | `Lodx;->g()` (18.4.1) / `Ladbx;->g()` (18.5.3) + `afterFlagValue` | підміна значень у пам'яті, без запису в GMS |
 | `enable_jetson` | stock default prefs у **DE storage** | Rambler вмикається до/без синку Phenotype |
 | `gboard_patches_settings` | `GboardPatchesSettings`, DE storage + `moveSharedPreferencesFrom` | налаштування патчів доступні під час Direct Boot |
 | `gboard_ai_writing_tools` | звичайний storage | вибір бекенду/V2/мов |
 | дефолти Gboard | `initializeDefaultPreferences()` у звичайному **і** DE контексті | spellchecker chips, emoji, autocorrect, clipboard |
 | Phenotype registration | manifest/resources rename | GMS має знайти конфіг для нового пакета |
+| Clipboard sync | `Lfml;->ft(...)Z` (18.4.1) / `Lldx;->n(...)Z` (18.5.3), поле-обробник `f` | історія кліпборда синхронізується на старті input view (Samsung/Vivo) |
 
 Важливо: жоден патч не пише в базу Phenotype (`content://com.google.android.gms.phenotype/...`).
 Усе форсування — на рівні геттера та SharedPreferences, тому воно ізольоване від
@@ -304,6 +317,10 @@ registration теж містить ім'я пакета, інакше GMS не �
   `patches/`).
 * Оновлено CI workflow, `.gitignore`, `build.sh` під нову структуру.
 * Додано `docs/VERSION-TARGETS.md` з процедурою порту на 18.5.3.
+* **18.5.3.993608717-beta-arm64-v8a додано як підтримувану ціль**: signature
+  `Lakft;`, flag getter `Ladbx;`, Rambler `VoiceSettingsFragment->aD/ac/f/aF` +
+  `Laaqf;->a` + `Lkrl;->e`, language queue `Lambj;->c`, clipboard `Lldx;->n`.
+  Перевірено реальним патчингом stock APK — див. `docs/VERSION-TARGETS.md` §3.
 * Код патчів і runtime не перейменовувались: пакет `com.akshaykadam.pixelboard`
   залишено як перевірений ідентифікатор (його зміна — окрема задача, див. §9).
 

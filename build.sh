@@ -77,7 +77,7 @@ fi
 
 if [[ ! -f "input/gboard.apk" ]]; then
     echo "Note: place a stock Gboard APK at input/gboard.apk to produce a patched APK."
-    echo "      Supported base versions: 18.0.3, 18.3.1 (release/beta), 18.4.1 (release)."
+    echo "      Supported base versions: 18.0.3, 18.3.1 (release/beta), 18.4.1 (release), 18.5.3 (beta)."
     exit 0
 fi
 

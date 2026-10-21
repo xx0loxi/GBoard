@@ -431,12 +431,11 @@ object GboardTargetBuildCompiler {
             "f0fd6c5b410f25cb25c3b53346c8972fae30f8ee7411df910480ad6b2d60db83",
         ),
         versionNames = listOf(
-            // 18.5.3 is intentionally not listed until its obfuscated targets are ported.
-            // See docs/VERSION-TARGETS.md for the porting procedure.
             "18.0.3.954559732-release-arm64-v8a",
             "18.3.1.977415014-beta-arm64-v8a",
             "18.3.1.977415014-release-arm64-v8a",
             "18.4.1.985164140-release-arm64-v8a",
+            "18.5.3.993608717-beta-arm64-v8a",
         ),
     )
 }

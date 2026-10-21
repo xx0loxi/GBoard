@@ -1,157 +1,184 @@
-# Цільові версії Gboard і порт на 18.5.3
+# Цільові версії Gboard і fingerprint-и
 
-## 1. Поточна матриця
+## 1. Матриця версій
 
 | Gboard | Статус у цьому проєкті | Примітки |
 | --- | --- | --- |
-| `18.0.3.954559732-release-arm64-v8a` | підтримується | базові bindings (`gboard-version-bindings.json`), повний набір хуків |
+| `18.0.3.954559732-release-arm64-v8a` | підтримується | базові bindings (`gboard-version-bindings.json`), тестовий профіль |
 | `18.3.1.977415014-beta-arm64-v8a` | підтримується | окремі обфусковані target-и |
 | `18.3.1.977415014-release-arm64-v8a` | підтримується | окремі target-и |
-| `18.4.1.985164140-release-arm64-v8a` | **основна / перевірена** | signature `Lryi;`, Rambler 18.4.1, flag getter `Lodx;` |
-| `18.5.3.*` | **не додано** | немає fingerprint-ів/обфускованих імен; див. §2 |
+| `18.4.1.985164140-release-arm64-v8a` | **основна** | signature `Lryi;`, Rambler 18.4.1, flag getter `Lodx;` |
+| `18.5.3.993608717-beta-arm64-v8a` | **підтримується, перевірено патчингом** | signature `Lakft;`, Rambler 18.5.3, flag getter `Ladbx;` |
 
 Список версій, які Morphe Manager вважає сумісними, генерується з
 `DEFAULT_ARTIFACT_IDENTITY` у
 `patches/src/bindingCompiler/kotlin/com/akshaykadam/pixelboard/tools/bindings/GboardTargetBuildCompiler.kt`.
-Він же потрапляє в `patches-list.json` і `GboardTargetAdmission.versionNames`.
+Він же потрапляє в `patches/src/main/resources/patches-list.json` і
+`GboardTargetAdmission.versionNames`.
 
-## 2. Чому 18.5.3 не додана «зараз»
+## 2. Fingerprint-и по версіях
 
 Патчі PixelBoard — не універсальні regex-и, а точкові smali-трансформації з
-перевіркою форми інструкцій. Для нової версії Gboard потрібно знати:
+перевіркою форми інструкцій. Нижче — реальні цілі, зняті з APK, а не припущення.
 
-1. точний `versionName` (наприклад, `18.5.3.xxxxxxx-release-arm64-v8a`) — без нього
-   патч не потрапить у `compatiblePackages`;
-2. нові обфусковані імена класів/методів для:
-   * перевірки підпису (`Lryi;` у 18.4.1),
-   * `VoiceSettingsFragment`-селектора Rambler,
-   * геттера Phenotype-прапорців (`Lodx;->g()`),
-   * `LanguageDownloadQueue`,
-   * п'яти 18.0.3-хуків Writing Tools (можуть зникнути/переїхати);
-3. збіг сигнатур і регістрів (патчі падають, якщо форма не збігається).
+### 2.1 Signature bypass
 
-Додавання версії без цих даних дає або «тихо не застосовано», або помилку
-верифікації під час патчингу. Тому 18.5.3 винесена в окрему процедуру.
+| Версія | Клас | Метод |
+| --- | --- | --- |
+| 18.0.3 | `Lrpv;` | `a(Context,String)Z` |
+| 18.3.1 beta | `Lajpz;` | `a(Context,String)Z` |
+| 18.3.1 release | `Lrvl;` | `a(Context,String)Z` |
+| 18.4.1 release | `Lryi;` | `a(Context,String)Z` |
+| 18.5.3 beta | `Lakft;` | `a(Context,String)Z` |
 
-## 3. Процедура порту на 18.5.3
+18.5.3: поля `Lakft;->e/d/c:[B`, зовнішній `Lakeh;->b:Z`, digest
+`Lakft;->c(Context,String)[B`, `.locals 6`, літерали 3/0/1/2.
 
-### Крок 0. Підготувати APK
+### 2.2 Rambler / Voice settings
+
+| Роль | 18.4.1 | 18.5.3 beta |
+| --- | --- | --- |
+| layout | `VoiceSettingsFragment->aC()I` | `VoiceSettingsFragment->aD()I` |
+| setup | `ac()V` | `ac()V` |
+| create | `f(Bundle)V` | `f(Bundle)V` |
+| запис вибору | `aE(Z,Lqou;,…)V` | `aF(Z,Lahpn;,…)V` |
+| читання вибору | `Lmvq;->a(Context)Z` | `Laaqf;->a(Context)Z` |
+| default selection | `Lfde;->hT()V` | `Lkrl;->e()V` |
+
+`Lkrl;->e()` пише `0x7f140957` (`enable_jetson`) у `true` — саме тому він є
+ціллю «default selection». `Laaqf;->a(Context)` читає той самий ключ.
+
+У 18.5.3 layout-аксесор `aD()I` збігається з 18.3.1, тому в `when`-ланцюжку
+версія визначається за унікальною сигнатурою `aF(Z,Lahpn;,…)V`.
+
+### 2.3 Геттер Phenotype-прапорців
+
+| Версія | Клас | Поле з ім'ям прапорця |
+| --- | --- | --- |
+| 18.0.3 | `Lnxw;` | `Lnxw;->a:Ljava/lang/String;` |
+| 18.3.1 beta | `Lacps;` | `a` |
+| 18.3.1 release | `Lobw;` | `a` |
+| 18.4.1 release | `Lodx;` | `a` |
+| 18.5.3 beta | `Ladbx;` | `a` |
+
+18.5.3: `Ladbx;->g()Ljava/lang/Object;`, значення матеріалізується з
+`Ladck;->a:Ljava/lang/Object;`. Форма геттера та сама, що в 18.0.3
+(3 регістри, `return-object p0`), тому `GboardFlagFamilyComposer` працює без
+змін логіки.
+
+### 2.4 Інші bytecode-цілі
+
+| Патч | 18.4.1 | 18.5.3 beta |
+| --- | --- | --- |
+| Language download guard | `Lsqk;->c(String,Lsrc;,Consumer;)V` | `Lambj;->c(String,Lamco;,Consumer;)V` |
+| Clipboard sync | `Lfml;->ft(...,Lobf;)Z` | `Lldx;->n(...,Lacxj;)Z` (поле `Lldx;->f:Lldo;`) |
+| Spellchecker chips | структурний пошук | `Laieo;->a(Context,TextServicesManager)Z` (знайдено автоматично) |
+| Emoji vibrancy | `AutoCenterScaleTextView->onDraw` | те саме, без змін |
+| Features menu accessibility | `AccessPointsPanel*` | те саме, без змін |
+
+## 3. Що перевірено на 18.5.3
+
+Перевірка виконувалась не «на око», а патчингом реального stock APK
+(`18.5.3.993608717-beta-arm64-v8a`, versionCode `176049654`) з наступним
+baksmali-розбором результату.
 
 ```bash
-# точний versionName
-aapt2 dump badging input/gboard.apk | head -1
-# або
-adb shell dumpsys package com.google.android.inputmethod.latin | grep versionName
+./gradlew buildAndroid
+java -jar tools/patcher.jar patch \
+    --patches=patches/build/libs/patches-1.2.0.mpp \
+    --options-file=options.json --striplibs=arm64-v8a \
+    -o=output/GBoard.apk -r=output/patching-result.json input/gboard.apk
 ```
 
-Записати рядок у форматі `<versionName>-<release|beta>-arm64-v8a` (саме так його
-очікує Morphe).
+Результат: `appliedPatches` — усі 4, `failedPatches` — порожній.
+
+Перевірені сліди в патченому DEX:
+
+| Що | Де шукали | Результат |
+| --- | --- | --- |
+| Signature bypass | `Lakft;->a(Context,String)Z` | кожен `return` → `const/4 …,0x1; return …` |
+| Flag family | `Ladbx;->g()` | виклики `afterFlagValue` + `applyOverriddenFlagValue` |
+| Rambler scope | `VoiceSettingsFragment`, `Laaqf`, `Lkrl` | `enter/exitVoiceSettingsScope`, `updateOfficialSelection`, `…DefaultSelectionSuppression` |
+| Language guard | `Lambj;->c(...)` | `LanguageDownloadGuard` на початку методу |
+| Clipboard | `Lldx;->n(...)` | виклик `ClipboardSyncRuntime` після `iget-object …->f` |
+| Spellchecker | `Laieo;->a(Context,TextServicesManager)Z` | SDK-перевірка на початку |
+| Emoji / accessibility | `AutoCenterScaleTextView`, `AccessPointsPanelV2` | по одному/двох викликах runtime |
+| Package rename | `aapt2 dump badging` | `package: com.akshaykadam.pixelboard` |
+| Settings entry | `resources.arsc` | `string/pixelboard_patches_settings_title` присутній |
+
+### 3.1 Хуки, які на 18.5.3 свідомо не застосовуються
+
+Ці target-и відсутні в 18.5.3, патчі самі пропускають їх
+(`findMutableMethodOrNull == null`) — жодних помилок чи пошкодженого APK:
+
+* `GboardAiWritingToolsFlagValuePatch` — 18.0.3-хуки (`Lrzb;->v()`,
+  `Lgwf;->a(Lgwo;)`, `Lifn;->c/d`, `NgaInputManager->e()`). Writing Tools
+  працюють через форс прапорців.
+* `GboardAdvancedVoice1803ZhTwPatch` — `zh-TW` Advanced Voice.
+* `suppressRamblerFeedbackAccessPoint()` — провайдер переїхав у `Lkja;` і
+  резолвиться через `Lator;->i(String)`; хук лише прибирав би
+  «compliance»-іконку зворотного зв'язку.
+
+## 4. Процедура порту на нову версію
+
+### Крок 0. Підготувати APK і зняти smali
+
+```bash
+aapt2 dump badging input/gboard.apk | head -1
+apktool d -f -o /tmp/gboard-new input/gboard.apk     # smali + res
+```
+
+Записати `versionName` у форматі `<versionName>-<release|beta>-arm64-v8a`.
 
 ### Крок 1. Додати версію до admission
 
-`GboardTargetBuildCompiler.kt` → `DEFAULT_ARTIFACT_IDENTITY.versionNames`:
+`GboardTargetBuildCompiler.kt` → `DEFAULT_ARTIFACT_IDENTITY.versionNames`,
+потім `patches/src/main/resources/patches-list.json` (4 записи) і контрактні
+тести в `patches/src/test/kotlin/.../registry/`.
 
-```kotlin
-versionNames = listOf(
-    "18.0.3.954559732-release-arm64-v8a",
-    "18.3.1.977415014-beta-arm64-v8a",
-    "18.3.1.977415014-release-arm64-v8a",
-    "18.4.1.985164140-release-arm64-v8a",
-    "18.5.3.XXXXXXX-release-arm64-v8a",   // ← додати
-),
-```
+### Крок 2. Знайти реальні цілі
 
-Оновити очікування в
-`patches/src/test/kotlin/.../registry/GboardPublishedPatchCatalogContractTest.kt`.
+Шукати **за сигнатурою + тілом**, а не за іменем класу: у новій версії стара
+обфускована назва часто належить зовсім іншому класу. Мінімум, що потрібно:
 
-### Крок 2. Signature bypass
+1. signature bypass — метод `(Context,String)Z`, що викликає
+   `MessageDigest`/`Arrays.equals` і має 3 `return`;
+2. `VoiceSettingsFragment` — layout/setup/create/selection write/read/default;
+3. геттер прапорців — `g()Ljava/lang/Object;` з полем-іменем і полем-значенням;
+4. `LanguageDownloadQueue.enqueue` — метод із рядком `"languageTag"`;
+5. clipboard — `onStartInputView`-метод з полем-обробником кліпборда.
 
-`features/signaturebypass/GboardSignatureBypassBytecodePatch.kt`:
+### Крок 3. Додати target-и
 
-1. додати `SIGNATURE_UTILS_CLASS_1853` (новий obfuscated-клас);
-2. додати `DIGEST_METHOD_DESCRIPTOR_1853`, `TARGET_FIELD_DESCRIPTORS_1853`;
-3. додати гілку в `injectSignatureBypass()`, `classifyGboardSignatureBypass()`,
-   `isExactGboardSignatureBypassTarget()`;
-4. перевірити кількість `RETURN` (у 18.4.1 — 3), `registerCount` (8) і літерали.
+* `GboardSignatureBypassBytecodePatch.kt` — `SIGNATURE_UTILS_CLASS_*`,
+  `DIGEST_METHOD_DESCRIPTOR_*`, `TARGET_FIELD_DESCRIPTORS_*`, гілки в
+  `injectSignatureBypass()`, `classifyGboardSignatureBypass()`,
+  `isExactGboardSignatureBypassTarget()`;
+* `GboardRambler1803OfficialSelectorPatch.kt` — `RAMBLER_*_TARGETS` + перевірка
+  в `when` **перед** старішими версіями;
+* `GboardFlagFamilyComposer.kt` — `targetMethod*` / `targetField*` першими в
+  `when`, за потреби `isFormal1803ResultMaterialization`;
+* `GboardAdvancedVoice1831LanguageDownloadGuardPatch.kt`,
+  `GboardClipboardSyncPatch.kt` — нові `GboardMethodTarget`;
+* runtime-фолбеки в
+  `extensions/.../rambler/GboardRambler1803OfficialSelectionRuntime.java`.
 
-Якщо форма методу інша — оновити `TARGET_*` константи, а не послаблювати
-перевірки.
+Не послаблювати перевірки форми: краще «тихо не застосовано», ніж зламаний APK.
 
-### Крок 3. Rambler / Voice Settings
-
-`features/rambler/GboardRambler1803OfficialSelectorPatch.kt`:
-
-1. додати `RAMBLER_1853_TARGETS` (layout/setup/create/selectionWrite/selectionRead/
-   defaultSelection);
-2. додати перевірку в `when` **перед** 18.4.1;
-3. перевірити `suppressRamblerFeedbackAccessPoint()` — провайдер міг переїхати;
-4. оновити runtime-фолбеки в
-   `extensions/.../rambler/GboardRambler1803OfficialSelectionRuntime.java`
-   (`Class.forName("mvq")` тощо) — додати новий клас перед 18.4.1.
-
-`GboardAdvancedVoice1831LanguageDownloadGuardPatch.kt` — додати новий
-`GboardMethodTarget` для `LanguageDownloadQueue.enqueue` у список
-`languageDownloadEnqueueTargets`.
-
-### Крок 4. Геттер Phenotype-прапорців
-
-`shared/GboardFlagFamilyComposer.kt`:
-
-1. додати `targetMethod1853` / `targetField1853`;
-2. додати їх у `when` найпершими;
-3. якщо змінилася сигнатура геттера — оновити `GboardVersionBindings`
-   (`gboard-version-bindings.json`) і `required_bindings` у каталозі.
-
-### Крок 5. Writing Tools V2
-
-Спочатку перевірити, чи існують цілі 18.0.3-хуків у 18.5.3:
-
-| Файл | Ціль |
-| --- | --- |
-| `GboardAiWritingToolsFlagValuePatch.kt` | `Lrzb;->v()Lvvw;` |
-| те саме | `Lgwf;->a(Lgwo;)Llyg;` |
-| те саме | `Lifn;->c(NgaInputManager,Lhmi;)V`, `Lifn;->d()V` |
-| те саме | `NgaInputManager->e()V` |
-
-Якщо класи переїхали — оновити `GboardMethodTarget` і внутрішні посилання на
-поля (`Lzxi;->c`, `Lidr;->j`, `Lunb;->cG/cH`, `Lvvl;`, `Lvvr;`).
-Якщо їх немає — хуки просто пропустяться; основна логіка Writing Tools все одно
-працює через форс прапорців у `GboardAiWritingToolsRuntime`.
-
-### Крок 6. Spellchecker / Package Rename
-
-* `GboardSpellCheckerChipsPatch` — структурний пошук, змін зазвичай не потребує.
-  Перевірити, що в APK є метод `(Context, TextServicesManager)Z`.
-* `GboardPackageRenameResourcePatch` — generic, але перевірити нові
-  `ContentProvider`/`receiver` authorities у manifest і додати їх до
-  `GBOARD_PACKAGE_RENAME_MAPPINGS` / `GBOARD_OPTIONAL_PACKAGE_RENAME_MAPPINGS`.
-
-### Крок 7. (Опційно) Port bundle
-
-Якщо для 18.5.3 знімаються нові bindings:
+### Крок 4. Верифікація
 
 ```bash
-./gradlew buildAndroid \
-  -PgboardPortBundleFile=path/to/port-bundle.json \
-  -PgboardReviewedBindingsFile=path/to/gboard-version-bindings.json
-```
-
-Обидва параметри обов'язкові разом. Перевірте `target_version`, `profile_version`
-та SHA-256 у bindings — компілятор звірить їх із port bundle.
-
-### Крок 8. Верифікація
-
-```bash
-# Тести (рекомендовано JDK 21: ASM 9.7.1 / Robolectric 4.14.1 не читають
-# class-файли новіших JDK)
+# Тести (JDK 21: ASM 9.7.1 / Robolectric 4.14.1 не читають новіші class-файли)
 ./gradlew test
 
 # Бандл
 ./gradlew buildAndroid
 
-# Патчинг
-cp /path/to/gboard-18.5.3.apk input/gboard.apk
+# Патчинг + розбір результату
+cp /path/to/gboard.apk input/gboard.apk
 ./build.sh --rebuild
+apktool d -r -f -o /tmp/patched output/GBoard.apk
+# і grep по слідах runtime-викликів, як у §3
 ```
 
 Смоук-тест на пристрої:
@@ -159,23 +186,20 @@ cp /path/to/gboard-18.5.3.apk input/gboard.apk
 - [ ] застосунок встановлюється поруч зі стоковим Gboard;
 - [ ] `Налаштування → Голосовий ввід` показує Rambler, перемикач зберігається
       після перезапуску;
-- [ ] довге натискання на текст → Writing Tools відкриваються, V2-інструкції
-      працюють;
+- [ ] довге натискання на текст → Writing Tools відкриваються;
 - [ ] перевірка орфографії показує chips на Android 12+;
 - [ ] у логах немає `Expected exactly one signature bypass target` та
       `Malformed ... scope`.
 
-## 4. Чому тести краще запускати на JDK 21
+## 5. Чому тести краще запускати на JDK 21
 
-`./gradlew buildAndroid` успішно працює на JDK 25 (перевірено). Але тести
-використовують ASM 9.7.1 і Robolectric 4.14.1, які падають на class-файлах,
-скомпільованих новішим JDK (`IllegalArgumentException at ClassReader.java:200`,
-NPE в Robolectric). CI upstream використовує Temurin 21 — цей проєкт
+`./gradlew buildAndroid` працює на JDK 21 і 25. На JDK 27 `jlink` падає на
+`core-for-system-modules.jar` (проблема середовища, не проєкту).
+Тести використовують ASM 9.7.1 і Robolectric 4.14.1, які падають на
+class-файлах новіших JDK — CI upstream використовує Temurin 21, цей проєкт
 дотримується того ж підходу.
 
-## 5. Куди оновлювати документацію
-
-Після успішного порту:
+## 6. Куди оновлювати документацію
 
 1. `README.md` — таблиця базових версій;
 2. `gradle.properties` — комментар про цільову версію;

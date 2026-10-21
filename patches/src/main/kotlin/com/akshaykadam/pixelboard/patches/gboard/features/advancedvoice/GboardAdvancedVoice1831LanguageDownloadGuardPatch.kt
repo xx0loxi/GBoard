@@ -14,8 +14,15 @@ import com.akshaykadam.pixelboard.patches.gboard.shared.runtimeabi.RuntimeCallId
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.reference.StringReference
 
-/** LanguageDownloadQueue.enqueue(languageTag, source, durationConsumer) in 18.3.1 and 18.4.1. */
+/** LanguageDownloadQueue.enqueue(languageTag, source, durationConsumer) in 18.3.1+. */
 private val languageDownloadEnqueueTargets = listOf(
+    // 18.5.3 beta
+    GboardMethodTarget(
+        classType = "Lambj;",
+        name = "c",
+        parameterTypes = listOf("Ljava/lang/String;", "Lamco;", "Ljava/util/function/Consumer;"),
+        returnType = "V",
+    ),
     // 18.4.1 release
     GboardMethodTarget(
         classType = "Lsqk;",

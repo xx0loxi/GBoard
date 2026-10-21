@@ -12,17 +12,19 @@ Tools / Writing Tools V2, сучасні підказки перевірки о�
 
 | Параметр | Значення |
 | --- | --- |
-| Цільовий Gboard | **18.4.1.985164140-release-arm64-v8a** (основна, перевірена) |
-| Додатково підтримується | 18.0.3.954559732, 18.3.1.977415014 (release / beta) |
+| Цільовий Gboard | **18.5.3.993608717-beta-arm64-v8a** (перевірено патчингом stock APK) |
+| Додатково підтримується | 18.4.1.985164140 (release), 18.0.3.954559732, 18.3.1.977415014 (release / beta) |
 | Формат | Morphe `.mpp` (Morphe Manager / `patcher.jar`) |
-| Java | JDK 21+ (перевірено на JDK 25) |
+| Java | JDK 21+ (збірка перевірена на JDK 21 і 25; тести — на JDK 21) |
 | Android SDK | потрібен для модуля `:extensions:extension` |
 
-> **18.5.3:** upstream PixelBoard 1.2.0 не містить fingerprint-ів і обфускованих імен
-> класів для 18.5.3, тому додавати її «наосліп» небезпечно — патчі або тихо не
-> застосуються, або впадуть на верифікації. Підготовлено процедуру порту:
-> [`docs/VERSION-TARGETS.md`](docs/VERSION-TARGETS.md). Після появи APK 18.5.3
-> достатньо додати нові target-и та оновити список версій.
+> **18.5.3:** fingerprint-и зняті з реального APK
+> `18.5.3.993608717-beta-arm64-v8a` (versionCode `176049654`), а не вгадані:
+> signature bypass `Lakft;`, геттер прапорців `Ladbx;`, Rambler
+> `VoiceSettingsFragment->aD/ac/f/aF` + `Laaqf;->a` + `Lkrl;->e`, черга мов
+> `Lambj;->c`, кліпборд `Lldx;->n`. Патчинг прогнано end-to-end, усі 4 патчі
+> застосовуються. Деталі та процедура для наступних версій:
+> [`docs/VERSION-TARGETS.md`](docs/VERSION-TARGETS.md).
 
 ## Швидкий старт
 
