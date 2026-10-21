@@ -38,6 +38,7 @@ done
 
 PATCH_VERSION=$(grep -E "^version\s*=" gradle.properties | cut -d'=' -f2 | tr -d ' ')
 BUILT_MPP="patches/build/libs/patches-${PATCH_VERSION}.mpp"
+PUBLISHED_MPP="patches/PixelBoard.mpp"
 PREBUILT_MPP="prebuilt/PixelBoard-1.2.0.mpp"
 
 if [[ "$REBUILD_PATCH" == true ]] || [[ ! -f "$BUILT_MPP" ]]; then
@@ -46,7 +47,10 @@ if [[ "$REBUILD_PATCH" == true ]] || [[ ! -f "$BUILT_MPP" ]]; then
 fi
 
 if [[ ! -f "$BUILT_MPP" ]]; then
-    if [[ -f "$PREBUILT_MPP" ]]; then
+    if [[ -f "$PUBLISHED_MPP" ]]; then
+        echo "Note: using published patch bundle: $PUBLISHED_MPP"
+        BUILT_MPP="$PUBLISHED_MPP"
+    elif [[ -f "$PREBUILT_MPP" ]]; then
         echo "Note: falling back to bundled patch bundle: $PREBUILT_MPP"
         BUILT_MPP="$PREBUILT_MPP"
     else

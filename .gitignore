@@ -20,6 +20,7 @@ tools/APKEditor*.jar
 output/patching-result*.json
 !prebuilt/*.mpp
 !output/.gitkeep
+!patches/*.mpp
 
 # Local input files (never commit stock APKs)
 input/*.apk

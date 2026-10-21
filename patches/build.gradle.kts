@@ -276,6 +276,45 @@ tasks {
     named("generatePatchesList") {
         finalizedBy("normalizePatchMetadataEncoding")
     }
+
+    // Published artifacts live next to the module sources (upstream layout):
+    //   patches/PixelBoard.mpp        - stable name for Morphe Manager / README links
+    //   patches/patches-<version>.mpp - versioned copy
+    //   patches/patches-bundle.json   - Morphe repository metadata
+    //   patches/patches-list.json     - patch inventory
+    val syncPublishedBundle = register("syncPublishedBundle") {
+        description = "Publishes the built patch bundle and metadata into patches/."
+        mustRunAfter("buildAndroid", "generatePatchesList")
+        outputs.upToDateWhen { false }
+
+        doLast {
+            val patchVersion = project.version.toString()
+            val builtBundle = layout.buildDirectory
+                .file("libs/patches-$patchVersion.mpp")
+                .get()
+                .asFile
+            if (!builtBundle.isFile) {
+                logger.warn("Patch bundle not found, skipping publication: ${builtBundle}")
+                return@doLast
+            }
+
+            builtBundle.copyTo(projectDir.resolve("PixelBoard.mpp"), overwrite = true)
+            builtBundle.copyTo(
+                projectDir.resolve("patches-$patchVersion.mpp"),
+                overwrite = true,
+            )
+            listOf("patches-bundle.json", "patches-list.json").forEach { fileName ->
+                val metadata = rootProject.file(fileName)
+                if (metadata.isFile) {
+                    metadata.copyTo(projectDir.resolve(fileName), overwrite = true)
+                }
+            }
+        }
+    }
+
+    named("buildAndroid") {
+        finalizedBy(syncPublishedBundle)
+    }
     // Used by gradle-semantic-release-plugin.
     publish {
         dependsOn("generatePatchesList")

@@ -32,8 +32,11 @@ Tools / Writing Tools V2, сучасні підказки перевірки о�
 # 1. Збірка патч-бандла (з кореня проєкту)
 ./gradlew buildAndroid
 
-# Результат:
-#   patches/build/libs/patches-1.2.0.mpp
+# Результат (публікується автоматично):
+#   patches/PixelBoard.mpp          <- стабільна назва для Morphe Manager / посилань
+#   patches/patches-1.2.0.mpp       <- версійна копія
+#   patches/patches-bundle.json     <- метадані репозиторію Morphe
+#   patches/patches-list.json       <- інвентар патчів
 ```
 
 Windows (PowerShell):
@@ -45,17 +48,29 @@ $env:JAVA_HOME = "C:\Program Files\Java\jdk-25.0.5"
 
 Локальні налаштування:
 
-* `local.properties` → `sdk.dir=C:\\Users\\<user>\\AppData\\Local\\Android\\Sdk`
+* `local.properties` → `sdk.dir=C:/Users/<user>/AppData/Local/Android/Sdk`
   (файл у `.gitignore`).
 * Для онлайн-збірки потрібні credentials GitHub Packages для плагіна Morphe
   (`gpr.user` / `gpr.key` у `~/.gradle/gradle.properties` або `GITHUB_ACTOR` /
   `GITHUB_TOKEN`). Якщо всі залежності вже в кеші Gradle, збірка працює з `--offline`.
 
-Повний цикл «зібрати + пропатчити APK»:
+## Як патчити Gboard
+
+APK у репозиторії не збирається і не публікується — продукт це `.mpp`-бандл,
+який застосовується до стокового Gboard у Morphe Manager.
+
+1. Завантажити стоковий Gboard APK (APKMirror), підтримувані версії — у таблиці
+   вище.
+2. Відкрити **Morphe Manager** → **Storage** → вибрати Gboard APK.
+3. Як джерело патчів вказати [`patches/PixelBoard.mpp`](patches/PixelBoard.mpp)
+   (або URL репозиторію з `patches-bundle.json`).
+4. Увімкнути потрібні патчі → **Patch** → зберегти підписаний APK → встановити.
+
+Локальна альтернатива без GUI (патчить APK через `tools/patcher.jar`):
 
 ```bash
 # Покласти стоковий Gboard APK у input/gboard.apk
-./build.sh            # або ./build.sh --rebuild
+./build.sh                 # або ./build.sh --rebuild
 # Результат: output/GBoard.apk, output/GBoard-1.2.0.apk
 ```
 
@@ -78,7 +93,11 @@ Storage: [`docs/ANALYSIS-UK.md`](docs/ANALYSIS-UK.md).
 
 ```
 GBoard/
-├── patches/                     # Kotlin-джерела патчів + JSON-конфігурація версій
+├── patches/                     # Kotlin-джерела патчів + готовий бандл
+│   ├── PixelBoard.mpp           # зібраний патч-бандл (для Morphe Manager)
+│   ├── patches-1.2.0.mpp        # версійна копія бандла
+│   ├── patches-bundle.json      # метадані репозиторію Morphe
+│   ├── patches-list.json        # інвентар патчів
 │   ├── src/main/kotlin/...      # features/*, registry/*, shared/*
 │   ├── src/bindingCompiler/     # генератор version bindings з JSON
 │   ├── src/main/resources/gboard/
@@ -90,15 +109,15 @@ GBoard/
 ├── gradle/, gradlew, gradlew.bat
 ├── settings.gradle.kts
 ├── gradle.properties            # версія патч-бандла
-├── patches-bundle.json          # метадані бандла
-├── patches-list.json            # інвентар патчів для Morphe Manager
+├── patches-bundle.json          # ті самі метадані (генеруються в корінь)
+├── patches-list.json            # той самий інвентар (генерується в корінь)
 ├── options.json                 # пресети патчів для patcher.jar
-├── prebuilt/                    # готовий .mpp 1.2.0 (офлайн-фолбек)
+├── prebuilt/                    # upstream .mpp 1.2.0 (офлайн-фолбек)
 ├── tools/patcher.jar            # Morphe CLI patcher
-├── input/                       # сюди кладеться gboard.apk
-├── output/                      # результат патчингу
+├── input/                       # сюди кладеться gboard.apk (локально, не в git)
+├── output/                      # локальний результат патчингу
 ├── docs/                        # аналіз, версії, upstream-документація
-└── build.sh                     # збірка + патчинг одною командою
+└── build.sh                     # збірка бандла + локальний патчинг
 ```
 
 ## Діагностика

@@ -83,9 +83,9 @@
 baksmali-розбором результату.
 
 ```bash
-./gradlew buildAndroid
+./gradlew buildAndroid            # публікує patches/PixelBoard.mpp
 java -jar tools/patcher.jar patch \
-    --patches=patches/build/libs/patches-1.2.0.mpp \
+    --patches=patches/PixelBoard.mpp \
     --options-file=options.json --striplibs=arm64-v8a \
     -o=output/GBoard.apk -r=output/patching-result.json input/gboard.apk
 ```
@@ -204,5 +204,7 @@ class-файлах новіших JDK — CI upstream використовує T
 1. `README.md` — таблиця базових версій;
 2. `gradle.properties` — комментар про цільову версію;
 3. `docs/ANALYSIS-UK.md` — таблиці обфускованих класів;
-4. `patches-bundle.json` / `patches-list.json` — регенеруються
-   `./gradlew generatePatchesList`.
+4. `patches/PixelBoard.mpp` + `patches/patches-<version>.mpp` — публікуються
+   автоматично після `./gradlew buildAndroid` (задача `syncPublishedBundle`);
+   разом з ними синхронізуються `patches/patches-bundle.json` і
+   `patches/patches-list.json`.
