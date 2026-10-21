@@ -807,4 +807,118 @@
         <translation locale="th">เปิดใช้รูปแบบปุ่มโค้งมน Material 3 Expressive (Belka)</translation>
         <translation locale="uk">Увімкнути закруглений стиль клавіш Material 3 Expressive (Belka).</translation>
     </string>
+    <string name="gboard_patches_theme_studio_title">
+        <translation locale="en">Theme Studio</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_summary">
+        <translation locale="en">Paint every part of the keyboard: background, keys, letters and digits.</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_header_summary">
+        <translation locale="en">Custom colors applied on top of the active Gboard theme.</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_enabled_title">
+        <translation locale="en">Use custom colors</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_enabled_summary">
+        <translation locale="en">Apply the palette below to the keyboard. The native keyboard preview updates as you pick colors.</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_section_colors">
+        <translation locale="en">Palette</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_background_title">
+        <translation locale="en">Keyboard background</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_background_summary">
+        <translation locale="en">Color behind the keys.</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_keys_title">
+        <translation locale="en">Key buttons</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_keys_summary">
+        <translation locale="en">Fill color of every letter and function key.</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_text_title">
+        <translation locale="en">Key text</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_text_summary">
+        <translation locale="en">Color of letters and function labels.</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_digits_title">
+        <translation locale="en">Digit text</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_digits_summary">
+        <translation locale="en">Separate color for number keys.</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_section_actions">
+        <translation locale="en">Actions</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_reset_title">
+        <translation locale="en">Reset palette</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_reset_summary">
+        <translation locale="en">Restore the default graphite palette.</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_preview_title">
+        <translation locale="en">Live keyboard preview</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_palette_title">
+        <translation locale="en">Choose a color</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_hex_hint">
+        <translation locale="en">Hex color, e.g. #1A73E8</translation>
+    </string>
+    <string name="gboard_patches_theme_studio_invalid_color">
+        <translation locale="en">Enter a color in #RRGGBB or #AARRGGBB format.</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_title">
+        <translation locale="en">Secure Clipboard Vault</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_summary">
+        <translation locale="en">Keep clipboard history after reboots and app updates in an encrypted on-device vault.</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_header_summary">
+        <translation locale="en">AES-GCM archive protected by Android Keystore and excluded from cloud backups.</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_enabled_title">
+        <translation locale="en">Encrypted vault</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_enabled_summary">
+        <translation locale="en">Archive every copied item and restore missing items when the keyboard opens.</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_section_status">
+        <translation locale="en">Vault</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_status_title">
+        <translation locale="en">Saved clips</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_status_summary">
+        <translation locale="en">%1$d items - %2$s encrypted</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_restore_title">
+        <translation locale="en">Restore into Gboard now</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_restore_summary">
+        <translation locale="en">Re-insert archived items that are missing from the visible clipboard history.</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_wipe_title">
+        <translation locale="en">Wipe encrypted vault</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_wipe_summary">
+        <translation locale="en">Permanently delete the archive. The visible Gboard history is not changed.</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_wipe_confirm_title">
+        <translation locale="en">Wipe vault?</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_wipe_confirm_message">
+        <translation locale="en">All encrypted clipboard items will be deleted and cannot be recovered.</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_section_information">
+        <translation locale="en">Security</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_info_title">
+        <translation locale="en">How it is stored</translation>
+    </string>
+    <string name="gboard_patches_clipboard_vault_info_summary">
+        <translation locale="en">Items live in app-private no-backup storage, encrypted with a key held by Android Keystore. The live Gboard history remains subject to the storage rules of Gboard.</translation>
+    </string>
 </settings-text>

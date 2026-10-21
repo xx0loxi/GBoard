@@ -1,8 +1,12 @@
 package com.akshaykadam.pixelboard.patches.gboard.registry
 
 import com.google.gson.JsonParser
+import com.akshaykadam.pixelboard.patches.gboard.features.clipboard.gboardClipboardVaultPatch
+import com.akshaykadam.pixelboard.patches.gboard.features.clipboard.gboardInfiniteClipboardPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.optimizations.gboardDisableCloudBackupPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.optimizations.gboardPerformancePrivacyPatch
+import com.akshaykadam.pixelboard.patches.gboard.features.theme.gboardThemeStudioPatch
+import com.akshaykadam.pixelboard.patches.gboard.features.theme.gboardUnlockThemesPatch
 import com.akshaykadam.pixelboard.patches.gboard.shared.generated.GboardTargetAdmission
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
@@ -15,7 +19,7 @@ class GboardPublishedPatchCatalogContractTest {
         val registrations = GboardPublishedPatchCatalog.publishedRegistrations
 
         assertTrue(registrations.isNotEmpty())
-        assertEquals(6, registrations.size)
+        assertEquals(10, registrations.size)
         assertEquals(registrations.size, registrations.map { patch -> patch.name }.distinct().size)
         assertSame(
             gboardAdvancedVoiceTypingPatch,
@@ -40,6 +44,22 @@ class GboardPublishedPatchCatalogContractTest {
         assertSame(
             gboardDisableCloudBackupPatch,
             registrations.single { patch -> patch.name == "Disable Cloud Backup" },
+        )
+        assertSame(
+            gboardInfiniteClipboardPatch,
+            registrations.single { patch -> patch.name == "Infinite Clipboard" },
+        )
+        assertSame(
+            gboardClipboardVaultPatch,
+            registrations.single { patch -> patch.name == "Secure Clipboard Vault" },
+        )
+        assertSame(
+            gboardThemeStudioPatch,
+            registrations.single { patch -> patch.name == "Theme Studio" },
+        )
+        assertSame(
+            gboardUnlockThemesPatch,
+            registrations.single { patch -> patch.name == "Unlock All Themes" },
         )
     }
 

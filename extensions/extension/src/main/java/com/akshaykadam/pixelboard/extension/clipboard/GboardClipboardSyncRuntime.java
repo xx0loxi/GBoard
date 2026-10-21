@@ -37,6 +37,7 @@ public final class GboardClipboardSyncRuntime {
             return;
         }
         try {
+            GboardClipboardVaultRuntime.restoreOnStartInputView(handler);
             ensureClipboardManager(handler);
             ensureScreenshotObserver(handler);
 

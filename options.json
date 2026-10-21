@@ -21,6 +21,18 @@
             },
             "Disable Cloud Backup": {
                 "enabled": true
+            },
+            "Infinite Clipboard": {
+                "enabled": true
+            },
+            "Secure Clipboard Vault": {
+                "enabled": true
+            },
+            "Theme Studio": {
+                "enabled": true
+            },
+            "Unlock All Themes": {
+                "enabled": true
             }
         }
     }

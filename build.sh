@@ -39,7 +39,7 @@ done
 PATCH_VERSION=$(grep -E "^version\s*=" gradle.properties | cut -d'=' -f2 | tr -d ' ')
 BUILT_MPP="patches/build/libs/patches-${PATCH_VERSION}.mpp"
 PUBLISHED_MPP="patches/GBoard.mpp"
-PREBUILT_MPP="prebuilt/GBoard-1.2.1.mpp"
+PREBUILT_MPP="prebuilt/GBoard-${PATCH_VERSION}.mpp"
 
 if [[ "$REBUILD_PATCH" == true ]] || [[ ! -f "$BUILT_MPP" ]]; then
     echo "=== Compiling patch bundle from source ==="
@@ -103,19 +103,53 @@ if [[ ! -f "$KEYSTORE_PATH" ]]; then
 fi
 
 echo "=== Applying patches to input/gboard.apk ==="
+# Morphe's built-in signer converts the keystore to BKS through BouncyCastle,
+# which JDK 25+ refuses to authenticate (unsigned shaded provider). Patch
+# unsigned and sign with the SDK's apksigner against the JKS keystore instead.
 "$JAVA_BIN" -jar tools/patcher.jar patch \
     --patches="$BUILT_MPP" \
     --options-file=options.json \
     --striplibs=arm64-v8a \
-    --signer="GBoard" \
-    --keystore="$KEYSTORE_PATH" \
-    --keystore-password=gboard \
-    --keystore-entry-alias=gboard \
-    --keystore-entry-password=gboard \
+    --unsigned \
     --temporary-files-path="tools/patcher-data/tmp" \
-    -o=output/GBoard.apk \
+    -o=output/GBoard-unsigned.apk \
     -r=output/patching-result.json \
     input/gboard.apk
+
+SDK_DIR=""
+if [[ -f local.properties ]]; then
+    SDK_DIR=$(sed -n 's/^sdk\.dir=//p' local.properties | tr -d '\r' | tail -n 1)
+fi
+if [[ -z "$SDK_DIR" || ! -d "$SDK_DIR" ]]; then
+    SDK_DIR="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/AppData/Local/Android/Sdk}}"
+fi
+if command -v cygpath >/dev/null 2>&1; then
+    SDK_DIR=$(cygpath -u "$SDK_DIR")
+fi
+
+APKSIGNER=""
+if [[ -d "$SDK_DIR/build-tools" ]]; then
+    BUILD_TOOLS=$(ls -1 "$SDK_DIR/build-tools" | sort -V | tail -n 1)
+    if [[ -f "$SDK_DIR/build-tools/$BUILD_TOOLS/apksigner.bat" ]]; then
+        APKSIGNER="$SDK_DIR/build-tools/$BUILD_TOOLS/apksigner.bat"
+    elif [[ -f "$SDK_DIR/build-tools/$BUILD_TOOLS/apksigner" ]]; then
+        APKSIGNER="$SDK_DIR/build-tools/$BUILD_TOOLS/apksigner"
+    fi
+fi
+if [[ -z "$APKSIGNER" ]]; then
+    echo "Error: apksigner not found. Set sdk.dir in local.properties or ANDROID_HOME."
+    exit 1
+fi
+
+echo "=== Signing patched APK ==="
+"$APKSIGNER" sign \
+    --ks "$KEYSTORE_PATH" \
+    --ks-pass pass:gboard \
+    --ks-key-alias gboard \
+    --key-pass pass:gboard \
+    --out output/GBoard.apk \
+    output/GBoard-unsigned.apk
+rm -f output/GBoard-unsigned.apk
 
 cp output/GBoard.apk "output/GBoard-${PATCH_VERSION}.apk"
 echo "Done: output/GBoard.apk and output/GBoard-${PATCH_VERSION}.apk"

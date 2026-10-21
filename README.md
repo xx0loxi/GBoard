@@ -1,8 +1,9 @@
 # GBoard — модуль патчів для Gboard (Morphe)
 
 Робочий простір для збірки патч-бандла **GBoard** (Gboard + Gemini Rambler, AI Writing
-Tools / Writing Tools V2, сучасні підказки перевірки орфографії, перейменування пакета
-для співіснування зі стоковим Gboard та обхід перевірки підпису).
+Tools / Writing Tools V2, сучасні підказки перевірки орфографії, кастомна палітра
+клавіатури, нескінченний та зашифрований буфер обміну, перейменування пакета для
+співіснування зі стоковим Gboard та обхід перевірки підпису).
 
 Патч-модуль інтегровано з відкритого проєкту
 [PixelBoard](https://github.com/Akshayykadam/PixelBoard) (Akshay Kadam, GPLv3).
@@ -27,8 +28,9 @@ Tools / Writing Tools V2, сучасні підказки перевірки о�
 > `18.5.3.993608717-beta-arm64-v8a` (versionCode `176049654`), а не вгадані:
 > signature bypass `Lakft;`, геттер прапорців `Ladbx;`, Rambler
 > `VoiceSettingsFragment->aD/ac/f/aF` + `Laaqf;->a` + `Lkrl;->e`, черга мов
-> `Lambj;->c`, кліпборд `Lldx;->n`. Патчинг прогнано end-to-end, усі 6 патчів
-> застосовуються. Деталі та процедура для наступних версій:
+> `Lambj;->c`, кліпборд `Lldo;` (сховище, очищення, ліміт історії), теми
+> `Lvjr;->p`. Патчинг прогнано end-to-end, усі 10 патчів застосовуються.
+> Деталі та процедура для наступних версій:
 > [`docs/VERSION-TARGETS.md`](docs/VERSION-TARGETS.md).
 
 ## Швидкий старт
@@ -39,7 +41,7 @@ Tools / Writing Tools V2, сучасні підказки перевірки о�
 
 # Результат (публікується автоматично):
 #   patches/GBoard.mpp          <- стабільна назва для Morphe Manager / посилань
-#   patches/patches-1.2.1.mpp       <- версійна копія
+#   patches/patches-1.3.0.mpp       <- версійна копія
 #   patches/patches-bundle.json     <- метадані репозиторію Morphe
 #   patches/patches-list.json       <- інвентар патчів
 ```
@@ -102,7 +104,7 @@ AICore (оновлюється через Play), а не Gboard і не патч
 ```bash
 # Покласти стоковий Gboard APK у input/gboard.apk
 ./build.sh                 # або ./build.sh --rebuild
-# Результат: output/GBoard.apk, output/GBoard-1.2.1.apk
+# Результат: output/GBoard.apk, output/GBoard-1.3.0.apk
 ```
 
 ## Що всередині
@@ -117,7 +119,16 @@ AICore (оновлюється через Play), а не Gboard і не патч
 | `Package Rename` | Змінює пакет на `com.akshaykadam.pixelboard`, перейменовує authorities/permissions/Phenotype-registration та дозволяє власну назву застосунку (типово `Gboard`) |
 | `Performance & Privacy` | Глушить фонові ресивери Primes/AppDoctor/Phenotype, нативний crash-reporter, daily-ping планувальник і рекламний reporting-widget — менше wake-up'ів, мережі та батареї |
 | `Disable Cloud Backup` | Прибирає `allowBackup`/`backupAgent`/`dataExtractionRules` з манифеста, щоб словник і налаштування не потрапляли в Google Drive |
+| `Unlock All Themes` | Розгортає кожну категорію тем повністю: замість одного ряду + картки «Show more» показує всі теми одразу (хук `Lvjr;->p`, заміна ліміту на 10000) |
+| `Theme Studio` | Кастомна палітра з живим прев'ю: фон клавіатури, клавіші, підписи та цифри. Хук `SoftKeyboardView.onLayout`, кольори з налаштувань застосунку |
+| `Infinite Clipboard` | Прибирає годинний TTL буфера (`Llcs;->a(Context)` → `Long.MAX_VALUE`), періодичне очищення (`Lldo;->g()`) і обрізання історії до 100 записів (`Llcs;->k`) |
+| `Secure Clipboard Vault` | Шифрує історію буфера (AES-GCM, ключ в Android Keystore) у `getNoBackupFilesDir()`; переживає перезавантаження й оновлення застосунку, не потрапляє в бекапи |
 | `GboardSpellCheckerChipsPatch` (внутрішній) | Форсує inline spell-checker chips та add-to-dictionary на Android 12+ |
+
+> **Про «преміум» теми.** У Gboard 18.5.3 немає платних/заблокованих вбудованих
+> тем: усі теми з каталогу доступні одразу, а платні теми з інтернету — це
+> сторонні Rboard-пакети, які патч не додає. `Unlock All Themes` прибирає лише
+> UI-скорочення списку («Show more»), а довільні кольори дає `Theme Studio`.
 
 Детальний розбір хуків, прапорців Phenotype, SharedPreferences і Device Protected
 Storage: [`docs/ANALYSIS-UK.md`](docs/ANALYSIS-UK.md).
@@ -128,7 +139,7 @@ Storage: [`docs/ANALYSIS-UK.md`](docs/ANALYSIS-UK.md).
 GBoard/
 ├── patches/                     # Kotlin-джерела патчів + готовий бандл
 │   ├── GBoard.mpp               # зібраний патч-бандл (для Morphe Manager)
-│   ├── patches-1.2.1.mpp        # версійна копія бандла
+│   ├── patches-1.3.0.mpp        # версійна копія бандла
 │   ├── patches-bundle.json      # метадані репозиторію Morphe
 │   ├── patches-list.json        # інвентар патчів
 │   ├── src/main/kotlin/...      # features/*, registry/*, shared/*
@@ -145,7 +156,7 @@ GBoard/
 ├── patches-bundle.json          # ті самі метадані (генеруються в корінь)
 ├── patches-list.json            # той самий інвентар (генерується в корінь)
 ├── options.json                 # пресети патчів для patcher.jar
-├── prebuilt/                    # готовий .mpp 1.2.1 (офлайн-фолбек)
+├── prebuilt/                    # готовий .mpp 1.3.0 (офлайн-фолбек)
 ├── tools/patcher.jar            # Morphe CLI patcher
 ├── input/                       # сюди кладеться gboard.apk (локально, не в git)
 ├── output/                      # локальний результат патчингу
