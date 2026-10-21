@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
  */
 public final class GboardClipboardSyncRuntime {
 
-    private static final String TAG = "PixelBoardClipboard";
+    private static final String TAG = "GBoardClipboard";
     private static volatile Field clipboardManagerField;
     private static volatile Field contextField;
     private static volatile Method syncMethod;

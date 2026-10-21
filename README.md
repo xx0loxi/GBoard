@@ -27,7 +27,7 @@ Tools / Writing Tools V2, сучасні підказки перевірки о�
 > `18.5.3.993608717-beta-arm64-v8a` (versionCode `176049654`), а не вгадані:
 > signature bypass `Lakft;`, геттер прапорців `Ladbx;`, Rambler
 > `VoiceSettingsFragment->aD/ac/f/aF` + `Laaqf;->a` + `Lkrl;->e`, черга мов
-> `Lambj;->c`, кліпборд `Lldx;->n`. Патчинг прогнано end-to-end, усі 4 патчі
+> `Lambj;->c`, кліпборд `Lldx;->n`. Патчинг прогнано end-to-end, усі 6 патчів
 > застосовуються. Деталі та процедура для наступних версій:
 > [`docs/VERSION-TARGETS.md`](docs/VERSION-TARGETS.md).
 
@@ -38,7 +38,7 @@ Tools / Writing Tools V2, сучасні підказки перевірки о�
 ./gradlew buildAndroid
 
 # Результат (публікується автоматично):
-#   patches/PixelBoard.mpp          <- стабільна назва для Morphe Manager / посилань
+#   patches/GBoard.mpp          <- стабільна назва для Morphe Manager / посилань
 #   patches/patches-1.2.0.mpp       <- версійна копія
 #   patches/patches-bundle.json     <- метадані репозиторію Morphe
 #   patches/patches-list.json       <- інвентар патчів
@@ -65,11 +65,37 @@ APK у репозиторії не збирається і не публікує
 який застосовується до стокового Gboard у Morphe Manager.
 
 1. Завантажити стоковий Gboard APK (APKMirror), підтримувані версії — у таблиці
-   вище.
+   вище. Для 18.5.3 прямий лінк:
+   [`gboard-the-google-keyboard-18-5-3-993608717-beta-arm64-v8a`](https://www.apkmirror.com/apk/google-inc/gboard/gboard-the-google-keyboard-18-5-3-993608717-release/gboard-the-google-keyboard-18-5-3-993608717-beta-arm64-v8a-android-apk-download/).
 2. Відкрити **Morphe Manager** → **Storage** → вибрати Gboard APK.
-3. Як джерело патчів вказати [`patches/PixelBoard.mpp`](patches/PixelBoard.mpp)
+3. Як джерело патчів вказати [`patches/GBoard.mpp`](patches/GBoard.mpp)
    (або URL репозиторію з `patches-bundle.json`).
 4. Увімкнути потрібні патчі → **Patch** → зберегти підписаний APK → встановити.
+
+> **Кнопка «Download» у Morphe Manager для Gboard веде в Google-пошук.** Це не
+> налаштування бандла: менеджер бере URL зі свого API
+> (`api.morphe.software/v2/web-search/<package>~<version>~<abi>`), а в базі API
+> немає Gboard 18.5.3 beta, тому він віддає fallback-пошук. Лінк зі `.mpp` не
+> змінюється — відкривайте сторінку APKMirror вище (або посилання з налаштувань
+> GBoard → Advanced Voice Typing).
+
+## Яка AI використовується
+
+Патч не додає власної моделі — він вмикає штатні AI-функції Gboard, а модель
+надає Google:
+
+| Функція | Модель / бекенд |
+| --- | --- |
+| AI Writing Tools (proofread, rewrite, tone, «My Style») на Pixel 8 Pro / Pixel 9 / Pixel 10 | **Gemini Nano** через Android **AICore** (Private Inference, `PRIVATE_INFERENCE_AICORE`) або Astrea |
+| AI Writing Tools на інших пристроях | хмара Google (`GBOARD_SERVER`), model config `202408051448_prod_sd_config` |
+| Gemini Rambler voice typing | серверна модель Google Rambler (не on-device) |
+
+**Gemini Nano v2 окремо не вибирається.** Версію Nano визначає системний модуль
+AICore (оновлюється через Play), а не Gboard і не патч: Gboard лише запитує
+функцію. Якщо на пристрої стоїть AICore з Nano v2, Gboard використає її
+автоматично; зашити чи примусово перемкнути модель зі сторони `.mpp`
+неможливо. Єдиний «модельний» важіль у патчі — cloud-конфіги вище, і їх зміна
+на вгадані значення лише зламає запити до сервера.
 
 Локальна альтернатива без GUI (патчить APK через `tools/patcher.jar`):
 
@@ -88,7 +114,9 @@ APK у репозиторії не збирається і не публікує
 | `Advanced Voice Typing` | Вмикає розширений голосовий ввід Gemini Rambler: форсує `enable_nga`, `enable_advanced_features_in_consolidated_sd_stack`, `enable_soda_longform_experiment` тощо, хуки в `VoiceSettingsFragment`, `enable_jetson` у device-protected prefs |
 | `AI Writing Tools` | Writing Tools / Writing Tools V2: форсує `writing_helper`, `writing_tools`, `enable_writing_tools_v2*`, бекенд (`GBOARD_SERVER` / `PRIVATE_INFERENCE_AICORE` / `ASTREA`), хуки GenAI init/refresh, auto-fix route, modeless smart edit |
 | `Add Gboard Signature Bypass` | Примусово повертає `true` з перевірки підпису (`Lryi;->a(Context,String)Z` для 18.4.1 + fallback-и для 18.3.1/18.0.3) |
-| `Package Rename` | Змінює пакет на `com.akshaykadam.pixelboard`, перейменовує authorities/permissions/Phenotype-registration та дозволяє власну назву застосунку |
+| `Package Rename` | Змінює пакет на `com.akshaykadam.pixelboard`, перейменовує authorities/permissions/Phenotype-registration та дозволяє власну назву застосунку (типово `Gboard`) |
+| `Performance & Privacy` | Глушить фонові ресивери Primes/AppDoctor/Phenotype, нативний crash-reporter, daily-ping планувальник і рекламний reporting-widget — менше wake-up'ів, мережі та батареї |
+| `Disable Cloud Backup` | Прибирає `allowBackup`/`backupAgent`/`dataExtractionRules` з манифеста, щоб словник і налаштування не потрапляли в Google Drive |
 | `GboardSpellCheckerChipsPatch` (внутрішній) | Форсує inline spell-checker chips та add-to-dictionary на Android 12+ |
 
 Детальний розбір хуків, прапорців Phenotype, SharedPreferences і Device Protected
@@ -99,7 +127,7 @@ Storage: [`docs/ANALYSIS-UK.md`](docs/ANALYSIS-UK.md).
 ```
 GBoard/
 ├── patches/                     # Kotlin-джерела патчів + готовий бандл
-│   ├── PixelBoard.mpp           # зібраний патч-бандл (для Morphe Manager)
+│   ├── GBoard.mpp               # зібраний патч-бандл (для Morphe Manager)
 │   ├── patches-1.2.0.mpp        # версійна копія бандла
 │   ├── patches-bundle.json      # метадані репозиторію Morphe
 │   ├── patches-list.json        # інвентар патчів

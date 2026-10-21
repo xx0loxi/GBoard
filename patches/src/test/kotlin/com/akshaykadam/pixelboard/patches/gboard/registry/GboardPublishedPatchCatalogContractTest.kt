@@ -1,6 +1,8 @@
 package com.akshaykadam.pixelboard.patches.gboard.registry
 
 import com.google.gson.JsonParser
+import com.akshaykadam.pixelboard.patches.gboard.features.optimizations.gboardDisableCloudBackupPatch
+import com.akshaykadam.pixelboard.patches.gboard.features.optimizations.gboardPerformancePrivacyPatch
 import com.akshaykadam.pixelboard.patches.gboard.shared.generated.GboardTargetAdmission
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
@@ -13,7 +15,7 @@ class GboardPublishedPatchCatalogContractTest {
         val registrations = GboardPublishedPatchCatalog.publishedRegistrations
 
         assertTrue(registrations.isNotEmpty())
-        assertEquals(4, registrations.size)
+        assertEquals(6, registrations.size)
         assertEquals(registrations.size, registrations.map { patch -> patch.name }.distinct().size)
         assertSame(
             gboardAdvancedVoiceTypingPatch,
@@ -30,6 +32,14 @@ class GboardPublishedPatchCatalogContractTest {
         assertSame(
             gboardPackageRenamePatch,
             registrations.single { patch -> patch.name == "Package Rename" },
+        )
+        assertSame(
+            gboardPerformancePrivacyPatch,
+            registrations.single { patch -> patch.name == "Performance & Privacy" },
+        )
+        assertSame(
+            gboardDisableCloudBackupPatch,
+            registrations.single { patch -> patch.name == "Disable Cloud Backup" },
         )
     }
 

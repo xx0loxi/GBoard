@@ -20,7 +20,9 @@ internal object GboardCapabilityWiringVerifier {
         val expectedPatchNames = admitted.keys.map { featureId ->
             features[featureId]?.asJsonObject?.get("public_patch_name")?.asString
                 ?: error("Admitted feature $featureId is missing from the product catalog")
-        }.toSet()
+        }.toSet() + GboardPublishedPatchCatalog.standaloneRegistrations.mapNotNull { patch ->
+            patch.name
+        }
         val actualPatchNames = GboardPublishedPatchCatalog.publishedRegistrations
             .mapNotNull { patch -> patch.name }
             .toSet()

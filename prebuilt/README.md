@@ -1,6 +1,6 @@
 # Prebuilt patch bundle (upstream fallback)
 
-`PixelBoard-1.2.0.mpp` — готовий бандл з upstream-релізу PixelBoard 1.2.0
+`GBoard-1.2.0.mpp` — готовий бандл з upstream-релізу PixelBoard 1.2.0
 (цільова версія Gboard 18.4.1, без підтримки 18.5.3). Використовується лише як
 офлайн-фолбек у `build.sh`, якщо Gradle-збірка недоступна.
 
@@ -8,7 +8,7 @@
 
 ```bash
 ./gradlew buildAndroid
-# patches/PixelBoard.mpp        <- для Morphe Manager
+# patches/GBoard.mpp            <- для Morphe Manager
 # patches/patches-1.2.0.mpp
 ```
 

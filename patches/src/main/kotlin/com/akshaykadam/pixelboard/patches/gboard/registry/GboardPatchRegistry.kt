@@ -15,6 +15,8 @@ import com.akshaykadam.pixelboard.patches.shared.stringOption
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.akshaykadam.pixelboard.patches.gboard.features.advancedvoice.gboardAdvancedVoiceFeatureMarkerPatch
+import com.akshaykadam.pixelboard.patches.gboard.features.optimizations.gboardDisableCloudBackupPatch
+import com.akshaykadam.pixelboard.patches.gboard.features.optimizations.gboardPerformancePrivacyPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.packagerename.applyGboardApplicationDisplayName
 import com.akshaykadam.pixelboard.patches.gboard.features.packagerename.gboardPackageRenameResourcePatch
 import com.akshaykadam.pixelboard.patches.gboard.features.packagerename.isValidGboardAppDisplayName
@@ -99,21 +101,21 @@ val gboardSignatureBypassPatch = gboardPublicResourcePatch(
 val gboardPackageRenamePatch = gboardPublicResourcePatch(
     featureId = "package_rename",
     name = "Package Rename",
-    description = "Rename the package to com.akshaykadam.pixelboard and allow " +
-        "a custom app name so it can be installed alongside the official Gboard.",
+    description = "Rename the package so it can be installed alongside the official Gboard, " +
+        "with a custom app name.",
     default = true
 ) {
     compatibleWith(COMPATIBILITY_GBOARD)
 
     val appDisplayName = stringOption(
         key = "app_display_name",
-        default = "PixelBoard",
+        default = "Gboard",
         values = linkedMapOf(
-            "PixelBoard" to "PixelBoard",
             "Gboard" to "Gboard",
             "Gboard Dev" to "Gboard Dev",
             "Gboard Patches" to "Gboard Patches",
             "Gboard Mod" to "Gboard Mod",
+            "Gboard Lite" to "Gboard Lite",
         ),
         title = "App Name",
         description = "",
@@ -151,12 +153,21 @@ object GboardPublishedPatchCatalog {
         "18.5.3.993608717-beta-arm64-v8a",
     )
 
+    /**
+     * Patches that are not driven by a product-catalog feature: they are plain bytecode/resource
+     * transforms and are always published as-is.
+     */
+    val standaloneRegistrations: Set<Patch<*>> = linkedSetOf(
+        gboardPerformancePrivacyPatch,
+        gboardDisableCloudBackupPatch,
+    ).filterTo(linkedSetOf()) { patch -> patch.name != null }
+
     val publishedRegistrations: Set<Patch<*>> = linkedSetOf(
         gboardAdvancedVoiceTypingPatch,
         gboardAiWritingToolsPatch,
         gboardSignatureBypassPatch,
         gboardPackageRenamePatch,
-    ).filterTo(linkedSetOf()) { patch -> patch.name != null }
+    ).filterTo(linkedSetOf()) { patch -> patch.name != null } + standaloneRegistrations
 
     @Suppress("DEPRECATION")
     fun publishedInventory(version: String): String {

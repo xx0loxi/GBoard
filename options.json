@@ -13,8 +13,14 @@
             "Package Rename": {
                 "enabled": true,
                 "options": {
-                    "app_display_name": "PixelBoard"
+                    "app_display_name": "Gboard"
                 }
+            },
+            "Performance & Privacy": {
+                "enabled": true
+            },
+            "Disable Cloud Backup": {
+                "enabled": true
             }
         }
     }

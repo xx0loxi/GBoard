@@ -7,7 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 public final class GboardPatchesSettingsProvider extends ContentProvider {
-    private static final String TAG = "PixelBoard";
+    private static final String TAG = "GBoard";
     public static final String AUTHORITY_SUFFIX = ".gboard_patches";
 
     @Override

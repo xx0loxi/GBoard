@@ -1640,7 +1640,7 @@ public final class GboardPatchesSettingsActivity extends Activity
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
         footerVersionView = new TextView(this);
-        footerVersionView.setText("PixelBoard " + resolvePatchVersion());
+        footerVersionView.setText("GBoard " + resolvePatchVersion());
         footerVersionView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         footerVersionView.setTextColor(palette.textSecondary);
         footerVersionView.setGravity(Gravity.CENTER);

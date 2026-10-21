@@ -159,7 +159,7 @@ patches {
             "spell checker chips, signature bypass and coexistence package rename. " +
             "Based on PixelBoard by Akshay Kadam."
         source = "https://github.com/xx0loxi/GBoard"
-        author = "Akshay Kadam (PixelBoard)"
+        author = "Akshay Kadam (GBoard)"
         contact = "https://github.com/Akshayykadam/PixelBoard/issues"
         website = "https://github.com/Akshayykadam/PixelBoard"
         license = "GPLv3"
@@ -278,7 +278,7 @@ tasks {
     }
 
     // Published artifacts live next to the module sources (upstream layout):
-    //   patches/PixelBoard.mpp        - stable name for Morphe Manager / README links
+    //   patches/GBoard.mpp            - stable name for Morphe Manager / README links
     //   patches/patches-<version>.mpp - versioned copy
     //   patches/patches-bundle.json   - Morphe repository metadata
     //   patches/patches-list.json     - patch inventory
@@ -298,7 +298,7 @@ tasks {
                 return@doLast
             }
 
-            builtBundle.copyTo(projectDir.resolve("PixelBoard.mpp"), overwrite = true)
+            builtBundle.copyTo(projectDir.resolve("GBoard.mpp"), overwrite = true)
             builtBundle.copyTo(
                 projectDir.resolve("patches-$patchVersion.mpp"),
                 overwrite = true,

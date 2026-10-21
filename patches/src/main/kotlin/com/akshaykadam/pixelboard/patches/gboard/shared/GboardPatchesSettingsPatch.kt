@@ -238,20 +238,20 @@ internal fun applyPixelboardBranding(
     val settingsActivity = application.childElements("activity").firstOrNull {
         it.androidAttribute("name") == GBOARD_SETTINGS_ACTIVITY_CLASS
     }
-    settingsActivity?.setAndroidAttribute("label", PIXELBOARD_SETTINGS_TITLE)
+    settingsActivity?.setAndroidAttribute("label", GBOARD_SETTINGS_TITLE)
 
     val spellCheckerService = application.childElements("service").firstOrNull {
         it.androidAttribute("name") == GBOARD_SPELL_CHECKER_SERVICE_CLASS
     }
-    spellCheckerService?.setAndroidAttribute("label", PIXELBOARD_SPELL_CHECKER_LABEL)
+    spellCheckerService?.setAndroidAttribute("label", GBOARD_SPELL_CHECKER_LABEL)
 
     val spellCheckerActivity = application.childElements("activity").firstOrNull {
         it.androidAttribute("name") == GBOARD_SPELL_CHECKER_SETTINGS_ACTIVITY_CLASS
     }
-    spellCheckerActivity?.setAndroidAttribute("label", PIXELBOARD_SPELL_CHECKER_SETTINGS_LABEL)
+    spellCheckerActivity?.setAndroidAttribute("label", GBOARD_SPELL_CHECKER_SETTINGS_LABEL)
 
     settingsDocuments.forEach { document ->
-        document.documentElement.setAndroidAttribute("title", PIXELBOARD_SETTINGS_TITLE)
+        document.documentElement.setAndroidAttribute("title", GBOARD_SETTINGS_TITLE)
     }
 }
 
@@ -332,43 +332,43 @@ internal fun applyPixelboardStringsOverride() = with(context) {
         for (name in spellCheckerStringNames) {
             val regex = Regex("""<string name="$name">.*?</string>""")
             if (regex.containsMatchIn(text)) {
-                text = regex.replace(text, """<string name="$name">$PIXELBOARD_SPELL_CHECKER_LABEL</string>""")
+                text = regex.replace(text, """<string name="$name">$GBOARD_SPELL_CHECKER_LABEL</string>""")
                 modified = true
             }
         }
         for (name in spellCheckerSettingsStringNames) {
             val regex = Regex("""<string name="$name">.*?</string>""")
             if (regex.containsMatchIn(text)) {
-                text = regex.replace(text, """<string name="$name">$PIXELBOARD_SPELL_CHECKER_SETTINGS_LABEL</string>""")
+                text = regex.replace(text, """<string name="$name">$GBOARD_SPELL_CHECKER_SETTINGS_LABEL</string>""")
                 modified = true
             }
         }
         for (name in settingsStringNames) {
             val regex = Regex("""<string name="$name">.*?</string>""")
             if (regex.containsMatchIn(text)) {
-                text = regex.replace(text, """<string name="$name">$PIXELBOARD_SETTINGS_TITLE</string>""")
+                text = regex.replace(text, """<string name="$name">$GBOARD_SETTINGS_TITLE</string>""")
                 modified = true
             }
         }
 
         if (text.contains(">Gboard settings<")) {
-            text = text.replace(">Gboard settings<", ">$PIXELBOARD_SETTINGS_TITLE<")
+            text = text.replace(">Gboard settings<", ">$GBOARD_SETTINGS_TITLE<")
             modified = true
         }
         if (text.contains(">Gboard spell checker<")) {
-            text = text.replace(">Gboard spell checker<", ">$PIXELBOARD_SPELL_CHECKER_LABEL<")
+            text = text.replace(">Gboard spell checker<", ">$GBOARD_SPELL_CHECKER_LABEL<")
             modified = true
         }
         if (text.contains(">Gboard spellchecker<")) {
-            text = text.replace(">Gboard spellchecker<", ">$PIXELBOARD_SPELL_CHECKER_LABEL<")
+            text = text.replace(">Gboard spellchecker<", ">$GBOARD_SPELL_CHECKER_LABEL<")
             modified = true
         }
         if (text.contains(">Gboard spell checker settings<")) {
-            text = text.replace(">Gboard spell checker settings<", ">$PIXELBOARD_SPELL_CHECKER_SETTINGS_LABEL<")
+            text = text.replace(">Gboard spell checker settings<", ">$GBOARD_SPELL_CHECKER_SETTINGS_LABEL<")
             modified = true
         }
         if (text.contains(">Gboard spellchecker settings<")) {
-            text = text.replace(">Gboard spellchecker settings<", ">$PIXELBOARD_SPELL_CHECKER_SETTINGS_LABEL<")
+            text = text.replace(">Gboard spellchecker settings<", ">$GBOARD_SPELL_CHECKER_SETTINGS_LABEL<")
             modified = true
         }
 
@@ -434,9 +434,9 @@ internal fun Element.setAndroidAttribute(localName: String, value: String) {
     }
 }
 
-internal const val PIXELBOARD_SETTINGS_TITLE = "PixelBoard Settings"
-internal const val PIXELBOARD_SPELL_CHECKER_LABEL = "PixelBoard Spell Checker"
-internal const val PIXELBOARD_SPELL_CHECKER_SETTINGS_LABEL = "PixelBoard Spell Checker Settings"
+internal const val GBOARD_SETTINGS_TITLE = "GBoard Settings"
+internal const val GBOARD_SPELL_CHECKER_LABEL = "GBoard Spell Checker"
+internal const val GBOARD_SPELL_CHECKER_SETTINGS_LABEL = "GBoard Spell Checker Settings"
 internal const val GBOARD_SETTINGS_ACTIVITY_CLASS =
     "com.google.android.apps.inputmethod.latin.preference.SettingsActivity"
 internal const val GBOARD_SPELL_CHECKER_SERVICE_CLASS =

@@ -17,7 +17,7 @@ import java.util.List;
 import com.akshaykadam.pixelboard.extension.keyboard.GboardAiVoiceSettingsGroupFeature;
 
 public final class GboardPatchesSettingsFeatureRegistry {
-    private static final String TAG = "PixelBoard";
+    private static final String TAG = "GBoard";
 
     private GboardPatchesSettingsFeatureRegistry() {
     }

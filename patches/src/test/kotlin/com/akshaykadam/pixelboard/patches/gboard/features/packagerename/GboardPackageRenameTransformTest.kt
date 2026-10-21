@@ -4,9 +4,9 @@ import com.akshaykadam.pixelboard.patches.gboard.shared.ANDROID_NS
 import com.akshaykadam.pixelboard.patches.gboard.shared.GBOARD_SETTINGS_ACTIVITY_CLASS
 import com.akshaykadam.pixelboard.patches.gboard.shared.GBOARD_SPELL_CHECKER_SERVICE_CLASS
 import com.akshaykadam.pixelboard.patches.gboard.shared.GBOARD_SPELL_CHECKER_SETTINGS_ACTIVITY_CLASS
-import com.akshaykadam.pixelboard.patches.gboard.shared.PIXELBOARD_SETTINGS_TITLE
-import com.akshaykadam.pixelboard.patches.gboard.shared.PIXELBOARD_SPELL_CHECKER_LABEL
-import com.akshaykadam.pixelboard.patches.gboard.shared.PIXELBOARD_SPELL_CHECKER_SETTINGS_LABEL
+import com.akshaykadam.pixelboard.patches.gboard.shared.GBOARD_SETTINGS_TITLE
+import com.akshaykadam.pixelboard.patches.gboard.shared.GBOARD_SPELL_CHECKER_LABEL
+import com.akshaykadam.pixelboard.patches.gboard.shared.GBOARD_SPELL_CHECKER_SETTINGS_LABEL
 import com.akshaykadam.pixelboard.patches.gboard.shared.applyGboardPatchesSettings
 import com.akshaykadam.pixelboard.patches.gboard.shared.applyPixelboardBranding
 import java.io.ByteArrayInputStream
@@ -501,20 +501,20 @@ class GboardPackageRenameTransformTest {
         val spellChecker = elements(manifest, "service").single { service ->
             androidAttribute(service, "name") == GBOARD_SPELL_CHECKER_SERVICE_CLASS
         }
-        assertEquals(PIXELBOARD_SPELL_CHECKER_LABEL, androidAttribute(spellChecker, "label"))
+        assertEquals(GBOARD_SPELL_CHECKER_LABEL, androidAttribute(spellChecker, "label"))
 
         val spellCheckerSettings = elements(manifest, "activity").single { activity ->
             androidAttribute(activity, "name") == GBOARD_SPELL_CHECKER_SETTINGS_ACTIVITY_CLASS
         }
-        assertEquals(PIXELBOARD_SPELL_CHECKER_SETTINGS_LABEL, androidAttribute(spellCheckerSettings, "label"))
+        assertEquals(GBOARD_SPELL_CHECKER_SETTINGS_LABEL, androidAttribute(spellCheckerSettings, "label"))
 
         val settingsActivity = elements(manifest, "activity").single { activity ->
             androidAttribute(activity, "name") == GBOARD_SETTINGS_ACTIVITY_CLASS
         }
-        assertEquals(PIXELBOARD_SETTINGS_TITLE, androidAttribute(settingsActivity, "label"))
+        assertEquals(GBOARD_SETTINGS_TITLE, androidAttribute(settingsActivity, "label"))
 
         settings.forEach { document ->
-            assertEquals(PIXELBOARD_SETTINGS_TITLE, androidAttribute(document.documentElement, "title"))
+            assertEquals(GBOARD_SETTINGS_TITLE, androidAttribute(document.documentElement, "title"))
         }
     }
 
@@ -528,15 +528,15 @@ class GboardPackageRenameTransformTest {
         val spellChecker = elements(manifest, "service").single { service ->
             androidAttribute(service, "name") == GBOARD_SPELL_CHECKER_SERVICE_CLASS
         }
-        assertEquals(PIXELBOARD_SPELL_CHECKER_LABEL, androidAttribute(spellChecker, "label"))
+        assertEquals(GBOARD_SPELL_CHECKER_LABEL, androidAttribute(spellChecker, "label"))
 
         val settingsActivity = elements(manifest, "activity").single { activity ->
             androidAttribute(activity, "name") == GBOARD_SETTINGS_ACTIVITY_CLASS
         }
-        assertEquals(PIXELBOARD_SETTINGS_TITLE, androidAttribute(settingsActivity, "label"))
+        assertEquals(GBOARD_SETTINGS_TITLE, androidAttribute(settingsActivity, "label"))
 
         settings.forEach { document ->
-            assertEquals(PIXELBOARD_SETTINGS_TITLE, androidAttribute(document.documentElement, "title"))
+            assertEquals(GBOARD_SETTINGS_TITLE, androidAttribute(document.documentElement, "title"))
         }
     }
 
