@@ -1,4 +1,8 @@
 import java.io.File
+import java.util.zip.CRC32
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
@@ -14,6 +18,61 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.tasks.Jar
 import org.gradle.process.ExecOperations
+
+/**
+ * Replaces (or appends) a single entry inside an already-built .mpp archive.
+ *
+ * The Morphe bundle embeds patches-list.json from the static resources folder. That copy can
+ * silently drift from the real patch catalog, which makes new patches invisible in Morphe
+ * Manager. The listing is generated after the bundle is assembled, so patch it into the zip
+ * here instead of relying on the stale resource.
+ */
+private fun replaceZipEntry(bundle: File, entryName: String, content: ByteArray) {
+    val temp = File(bundle.parentFile, "${bundle.name}.tmp")
+    var replaced = false
+
+    ZipFile(bundle).use { zip ->
+        ZipOutputStream(temp.outputStream().buffered()).use { output ->
+            zip.entries().asSequence().forEach { entry ->
+                if (entry.isDirectory) {
+                    output.putNextEntry(ZipEntry(entry.name))
+                    output.closeEntry()
+                    return@forEach
+                }
+
+                val bytes = if (entry.name == entryName) {
+                    replaced = true
+                    content
+                } else {
+                    zip.getInputStream(entry).use { it.readBytes() }
+                }
+
+                val newEntry = ZipEntry(entry.name)
+                newEntry.time = entry.time
+                if (entry.method == ZipEntry.STORED) {
+                    newEntry.method = ZipEntry.STORED
+                    newEntry.size = bytes.size.toLong()
+                    newEntry.compressedSize = bytes.size.toLong()
+                    newEntry.crc = CRC32().apply { update(bytes) }.value
+                }
+                output.putNextEntry(newEntry)
+                output.write(bytes)
+                output.closeEntry()
+            }
+
+            if (!replaced) {
+                output.putNextEntry(ZipEntry(entryName))
+                output.write(content)
+                output.closeEntry()
+            }
+        }
+    }
+
+    if (!temp.renameTo(bundle)) {
+        temp.copyTo(bundle, overwrite = true)
+        temp.delete()
+    }
+}
 
 @CacheableTask
 abstract class GenerateTargetBindingsTask @Inject constructor(
@@ -243,10 +302,29 @@ tasks {
     register<JavaExec>("generatePatchesList") {
         description = "Build patch with patch list"
 
+        // The generator reads the assembled bundle, so it has to run after buildAndroid.
+        mustRunAfter("buildAndroid")
         dependsOn(build, patchMetadataSourceSet.classesTaskName)
 
         classpath = patchMetadataSourceSet.runtimeClasspath
         mainClass.set("com.akshaykadam.pixelboard.util.PatchListGeneratorKt")
+
+        doLast {
+            val patchVersion = project.version.toString()
+            val builtBundle = layout.buildDirectory
+                .file("libs/patches-$patchVersion.mpp")
+                .get()
+                .asFile
+            val generatedList = rootProject.file("patches-list.json")
+            if (builtBundle.isFile && generatedList.isFile) {
+                replaceZipEntry(builtBundle, "patches-list.json", generatedList.readBytes())
+                logger.lifecycle(
+                    "Embedded ${generatedList.name} (${generatedList.length()} bytes) into ${builtBundle.name}",
+                )
+            } else {
+                logger.warn("Patch bundle or generated listing missing; skipped embedding listing.")
+            }
+        }
     }
 
     register("normalizePatchMetadataEncoding") {
@@ -284,7 +362,8 @@ tasks {
     //   patches/patches-list.json     - patch inventory
     val syncPublishedBundle = register("syncPublishedBundle") {
         description = "Publishes the built patch bundle and metadata into patches/."
-        mustRunAfter("buildAndroid", "generatePatchesList")
+        dependsOn("generatePatchesList")
+        mustRunAfter("buildAndroid")
         outputs.upToDateWhen { false }
 
         doLast {

@@ -69,6 +69,28 @@ class GboardPublishedPatchCatalogContractTest {
     }
 
     @Test
+    fun embeddedPatchListMatchesPublishedCatalog() {
+        val resource = checkNotNull(javaClass.classLoader.getResource("patches-list.json")) {
+            "patches-list.json is missing from the bundle resources"
+        }
+        val inventory = JsonParser.parseString(resource.readText()).asJsonObject
+        val embeddedNames = inventory.getAsJsonArray("patches")
+            .map { patch -> patch.asJsonObject.get("name").asString }
+            .sorted()
+
+        assertEquals(
+            GboardPublishedPatchCatalog.publishedRegistrations
+                .mapNotNull { patch -> patch.name }
+                .sorted(),
+            embeddedNames,
+        )
+        assertEquals(
+            GboardPublishedPatchCatalog.PUBLISHED_DOWNLOAD_URL,
+            inventory.get("download_url").asString,
+        )
+    }
+
+    @Test
     fun catalogPublishesOnlyTheDistributionTargets() {
         val patches = generatedPublishedPatches()
 

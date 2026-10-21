@@ -39,7 +39,7 @@ Tools / Writing Tools V2, сучасні підказки перевірки о�
 
 # Результат (публікується автоматично):
 #   patches/GBoard.mpp          <- стабільна назва для Morphe Manager / посилань
-#   patches/patches-1.2.0.mpp       <- версійна копія
+#   patches/patches-1.2.1.mpp       <- версійна копія
 #   patches/patches-bundle.json     <- метадані репозиторію Morphe
 #   patches/patches-list.json       <- інвентар патчів
 ```
@@ -102,7 +102,7 @@ AICore (оновлюється через Play), а не Gboard і не патч
 ```bash
 # Покласти стоковий Gboard APK у input/gboard.apk
 ./build.sh                 # або ./build.sh --rebuild
-# Результат: output/GBoard.apk, output/GBoard-1.2.0.apk
+# Результат: output/GBoard.apk, output/GBoard-1.2.1.apk
 ```
 
 ## Що всередині
@@ -128,7 +128,7 @@ Storage: [`docs/ANALYSIS-UK.md`](docs/ANALYSIS-UK.md).
 GBoard/
 ├── patches/                     # Kotlin-джерела патчів + готовий бандл
 │   ├── GBoard.mpp               # зібраний патч-бандл (для Morphe Manager)
-│   ├── patches-1.2.0.mpp        # версійна копія бандла
+│   ├── patches-1.2.1.mpp        # версійна копія бандла
 │   ├── patches-bundle.json      # метадані репозиторію Morphe
 │   ├── patches-list.json        # інвентар патчів
 │   ├── src/main/kotlin/...      # features/*, registry/*, shared/*
@@ -145,7 +145,7 @@ GBoard/
 ├── patches-bundle.json          # ті самі метадані (генеруються в корінь)
 ├── patches-list.json            # той самий інвентар (генерується в корінь)
 ├── options.json                 # пресети патчів для patcher.jar
-├── prebuilt/                    # upstream .mpp 1.2.0 (офлайн-фолбек)
+├── prebuilt/                    # готовий .mpp 1.2.1 (офлайн-фолбек)
 ├── tools/patcher.jar            # Morphe CLI patcher
 ├── input/                       # сюди кладеться gboard.apk (локально, не в git)
 ├── output/                      # локальний результат патчингу

@@ -143,7 +143,7 @@ object GboardPublishedPatchCatalog {
     const val PUBLISHED_DESCRIPTION =
         "Custom Gboard patches with Gemini AI, Rambler Voice, and Writing Tools."
     const val PUBLISHED_DOWNLOAD_URL =
-        "https://github.com/xx0loxi/GBoard/releases/download/1.1.0/patches-1.2.0.mpp"
+        "https://github.com/xx0loxi/GBoard/releases/download/1.1.1/patches-1.2.1.mpp"
 
     /**
      * Versions advertised in the published listing. The bundle itself still admits every

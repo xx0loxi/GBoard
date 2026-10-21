@@ -39,7 +39,7 @@ done
 PATCH_VERSION=$(grep -E "^version\s*=" gradle.properties | cut -d'=' -f2 | tr -d ' ')
 BUILT_MPP="patches/build/libs/patches-${PATCH_VERSION}.mpp"
 PUBLISHED_MPP="patches/GBoard.mpp"
-PREBUILT_MPP="prebuilt/GBoard-1.2.0.mpp"
+PREBUILT_MPP="prebuilt/GBoard-1.2.1.mpp"
 
 if [[ "$REBUILD_PATCH" == true ]] || [[ ! -f "$BUILT_MPP" ]]; then
     echo "=== Compiling patch bundle from source ==="
