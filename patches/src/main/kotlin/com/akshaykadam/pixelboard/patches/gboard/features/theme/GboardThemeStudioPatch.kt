@@ -48,8 +48,8 @@ private val themeListingFragmentTarget = GboardMethodTarget(
 )
 
 /**
- * Applies the user's palette directly to the stable SoftKeyboardView tree and injects the
- * Theme Studio controls into the native Theme section.
+ * Applies the user's palette directly to the stable SoftKeyboardView tree and adds a Theme Studio
+ * entry over the native Theme section without replacing the fragment's view hierarchy.
  *
  * Gboard's theme engine is heavily obfuscated and its color map is keyed by resource IDs that are
  * renamed in every build. The keyboard widget classes, however, are stable across releases. The
@@ -62,7 +62,7 @@ private val themeListingFragmentTarget = GboardMethodTarget(
 internal val gboardThemeStudioPatch = bytecodePatch(
     name = "Theme Studio",
     description = "Custom keyboard palette with live preview: background, keys, label text and " +
-        "digit colors, configured directly inside the Theme section.",
+        "digit colors, opened from a floating Theme Studio button in the Theme section.",
     default = false,
 ) {
     compatibleWith(COMPATIBILITY_GBOARD)
@@ -133,7 +133,7 @@ private fun BytecodePatchContext.installSoftKeyColorHook() {
 private fun BytecodePatchContext.installThemeSectionHeaderHook() {
     val method = findMutableMethodOrNull(themeListingFragmentTarget)
     if (method == null) {
-        println("[Theme Studio] ThemeListingFragment.J not found; Theme section header skipped.")
+        println("[Theme Studio] ThemeListingFragment.J not found; Theme section entry skipped.")
         return
     }
     val implementation = method.implementation ?: return
@@ -143,7 +143,7 @@ private fun BytecodePatchContext.installThemeSectionHeaderHook() {
             instruction.isMethodReference(reference)
         }
     ) {
-        println("[Theme Studio] Theme section header hook already present.")
+        println("[Theme Studio] Theme section entry hook already present.")
         return
     }
     // The success path returns the inflated FrameLayout held in v4; the null path returns v6.
@@ -152,12 +152,12 @@ private fun BytecodePatchContext.installThemeSectionHeaderHook() {
             (instruction as? OneRegisterInstruction)?.registerA == 4
     }
     if (returnIndex < 0) {
-        println("[Theme Studio] ThemeListingFragment.J success return not found; header skipped.")
+        println("[Theme Studio] ThemeListingFragment.J success return not found; entry skipped.")
         return
     }
     method.addInstructions(
         returnIndex,
         RuntimeCallEmitter.invoke(call, "v4") + "\nmove-result-object v4",
     )
-    println("[Theme Studio] Theme section header hook installed.")
+    println("[Theme Studio] Theme section entry hook installed.")
 }

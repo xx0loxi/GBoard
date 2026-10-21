@@ -23,7 +23,9 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,7 +54,8 @@ public final class GboardThemeStudioRuntime {
             new WeakHashMap<View, SavedColors>();
     private static final Map<View, Boolean> KEYBOARDS =
             new WeakHashMap<View, Boolean>();
-    private static final int HEADER_TAG = View.generateViewId();
+    private static final int ENTRY_TAG = View.generateViewId();
+    private static final int ENTRY_ROOT_TAG = View.generateViewId();
 
     private GboardThemeStudioRuntime() {
     }
@@ -121,55 +124,128 @@ public final class GboardThemeStudioRuntime {
     }
 
     /**
-     * Wraps the theme listing in a vertical container with the palette controls above the native
-     * theme grid. Returning the wrapper keeps every native theme visible and selectable.
+     * Adds a floating Theme Studio button over the native Theme screen without changing the
+     * fragment's view hierarchy. The palette opens in a dialog, so the stock theme grid keeps its
+     * original type and layout.
      */
     public static View installThemeSectionHeader(View root) {
         if (root == null) {
             return null;
         }
         try {
-            Object existing = root.getTag(HEADER_TAG);
-            if (existing instanceof ThemeSectionHeader) {
-                ((ThemeSectionHeader) existing).refresh();
+            Activity activity = findActivity(root.getContext());
+            if (activity == null) {
                 return root;
             }
-            Context context = root.getContext();
-            if (context == null) {
+            ViewGroup content = activity.findViewById(android.R.id.content);
+            if (content == null) {
                 return root;
             }
 
-            ThemeSectionHeader header = new ThemeSectionHeader(context);
-            LinearLayout wrapper = new LinearLayout(context);
-            wrapper.setOrientation(LinearLayout.VERTICAL);
-            LinearLayout.LayoutParams headerParams = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            headerParams.setMargins(dp(context, 12), dp(context, 8), dp(context, 12), dp(context, 4));
-            wrapper.addView(header, headerParams);
+            Object existing = content.getTag(ENTRY_TAG);
+            final View entry;
+            if (existing instanceof View && ((View) existing).getParent() == content) {
+                entry = (View) existing;
+            } else {
+                entry = createEntryButton(activity);
+                content.addView(entry, entryLayoutParams(activity));
+                content.setTag(ENTRY_TAG, entry);
+            }
+            entry.setOnClickListener(ignored -> showPaletteDialog(entry.getContext()));
+            entry.setTag(ENTRY_ROOT_TAG, root);
 
-            ViewGroup parent = root.getParent() instanceof ViewGroup
-                    ? (ViewGroup) root.getParent()
-                    : null;
-            if (parent != null) {
-                int index = parent.indexOfChild(root);
-                ViewGroup.LayoutParams params = root.getLayoutParams();
-                parent.removeViewAt(index);
-                wrapper.setTag(HEADER_TAG, header);
-                if (params != null) {
-                    parent.addView(wrapper, index, params);
-                } else {
-                    parent.addView(wrapper, index);
+            root.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(View view) {
                 }
-            }
-            wrapper.addView(root, new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-            wrapper.setTag(HEADER_TAG, header);
-            return wrapper;
+
+                @Override
+                public void onViewDetachedFromWindow(View view) {
+                    try {
+                        view.removeOnAttachStateChangeListener(this);
+                        if (entry.getTag(ENTRY_ROOT_TAG) != view) {
+                            return;
+                        }
+                        if (entry.getParent() instanceof ViewGroup) {
+                            ((ViewGroup) entry.getParent()).removeView(entry);
+                        }
+                        if (content.getTag(ENTRY_TAG) == entry) {
+                            content.setTag(ENTRY_TAG, null);
+                        }
+                    } catch (Throwable throwable) {
+                        Log.w(TAG, "Failed to remove Theme Studio entry", throwable);
+                    }
+                }
+            });
+            return root;
         } catch (Throwable throwable) {
-            Log.w(TAG, "Failed to install Theme section header", throwable);
+            Log.w(TAG, "Failed to install Theme Studio entry", throwable);
             return root;
         }
+    }
+
+    private static View createEntryButton(Context context) {
+        TextView button = new TextView(context);
+        button.setText(GboardSettingsText.get(
+                context, R.string.gboard_patches_theme_studio_title));
+        button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        button.setTextColor(0xFFFFFFFF);
+        button.setTypeface(Typeface.DEFAULT_BOLD);
+        button.setGravity(Gravity.CENTER);
+        button.setPadding(dp(context, 18), dp(context, 10), dp(context, 18), dp(context, 10));
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(resolveThemeColor(
+                context, android.R.attr.colorAccent, 0xFF6750A4));
+        background.setCornerRadius(dp(context, 24));
+        button.setBackground(background);
+        button.setElevation(dp(context, 6));
+        button.setClickable(true);
+        button.setFocusable(true);
+        return button;
+    }
+
+    private static FrameLayout.LayoutParams entryLayoutParams(Context context) {
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM | Gravity.END);
+        int margin = dp(context, 16);
+        params.setMargins(margin, margin, margin, margin);
+        return params;
+    }
+
+    private static void showPaletteDialog(Context context) {
+        try {
+            Activity activity = findActivity(context);
+            Context uiContext = activity != null ? activity : context;
+            ThemeSectionHeader header = new ThemeSectionHeader(uiContext);
+            ScrollView scroll = new ScrollView(uiContext);
+            scroll.addView(header, new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            AlertDialog dialog = new AlertDialog.Builder(uiContext)
+                    .setView(scroll)
+                    .create();
+            header.setHostDialog(dialog);
+            dialog.setOnDismissListener(ignored -> refreshKeyboards());
+            dialog.show();
+        } catch (Throwable throwable) {
+            Log.w(TAG, "Failed to show Theme Studio dialog", throwable);
+        }
+    }
+
+    private static Activity findActivity(Context context) {
+        if (context == null) {
+            return null;
+        }
+        Context current = context;
+        while (current instanceof ContextWrapper) {
+            if (current instanceof Activity) {
+                return (Activity) current;
+            }
+            current = ((ContextWrapper) current).getBaseContext();
+        }
+        return current instanceof Activity ? (Activity) current : null;
     }
 
     private static void applyRootBackground(View root, int color) {
@@ -468,6 +544,7 @@ public final class GboardThemeStudioRuntime {
         private final View[] swatches = new View[4];
         private final LinearLayout[] rows = new LinearLayout[4];
         private final GboardThemePreviewView preview;
+        private AlertDialog hostDialog;
 
         ThemeSectionHeader(Context context) {
             super(context);
@@ -540,7 +617,12 @@ public final class GboardThemeStudioRuntime {
             TextView more = createAction(context,
                     R.string.gboard_patches_theme_studio_more_options);
             more.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
-            more.setOnClickListener(ignored -> openFullSettings(getContext()));
+            more.setOnClickListener(ignored -> {
+                if (hostDialog != null) {
+                    hostDialog.dismiss();
+                }
+                openFullSettings(getContext());
+            });
             actions.addView(reset, new LinearLayout.LayoutParams(
                     0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             actions.addView(more, new LinearLayout.LayoutParams(
@@ -551,15 +633,7 @@ public final class GboardThemeStudioRuntime {
             actionParams.topMargin = dp(context, 4);
             addView(actions, actionParams);
 
-            toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                Context current = getContext();
-                if (current == null) {
-                    return;
-                }
-                GboardThemeStudioSettings.setEnabled(current, isChecked);
-                applyEnabledState(isChecked);
-                refreshKeyboards();
-            });
+            toggle.setOnCheckedChangeListener((buttonView, isChecked) -> handleToggle(isChecked));
             refresh();
         }
 
@@ -598,10 +672,14 @@ public final class GboardThemeStudioRuntime {
             swatches[slot] = swatch;
 
             row.setOnClickListener(ignored -> {
-                AlertDialog dialog = GboardThemeColorDialog.create(
-                        getContext(), slot, true, this::refresh);
-                if (dialog != null) {
-                    dialog.show();
+                try {
+                    AlertDialog dialog = GboardThemeColorDialog.create(
+                            getContext(), slot, true, this::refresh);
+                    if (dialog != null) {
+                        dialog.show();
+                    }
+                } catch (Throwable throwable) {
+                    Log.w(TAG, "Failed to open color picker", throwable);
                 }
             });
             return row;
@@ -621,30 +699,30 @@ public final class GboardThemeStudioRuntime {
             return action;
         }
 
+        void setHostDialog(AlertDialog dialog) {
+            hostDialog = dialog;
+        }
+
         void refresh() {
-            Context context = getContext();
-            if (context == null) {
-                return;
-            }
-            int[] palette = GboardThemeStudioSettings.readPalette(context);
-            boolean enabled = GboardThemeStudioSettings.isEnabled(context);
-            toggle.setOnCheckedChangeListener(null);
-            toggle.setChecked(enabled);
-            toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                Context current = getContext();
-                if (current == null) {
+            try {
+                Context context = getContext();
+                if (context == null) {
                     return;
                 }
-                GboardThemeStudioSettings.setEnabled(current, isChecked);
-                applyEnabledState(isChecked);
-                refreshKeyboards();
-            });
-            for (int slot = 0; slot < 4; slot++) {
-                values[slot].setText(GboardThemeStudioSettings.formatColor(palette[slot]));
-                swatches[slot].setBackground(swatchDrawable(context, palette[slot]));
+                int[] palette = GboardThemeStudioSettings.readPalette(context);
+                boolean enabled = GboardThemeStudioSettings.isEnabled(context);
+                toggle.setOnCheckedChangeListener(null);
+                toggle.setChecked(enabled);
+                toggle.setOnCheckedChangeListener((buttonView, isChecked) -> handleToggle(isChecked));
+                for (int slot = 0; slot < 4; slot++) {
+                    values[slot].setText(GboardThemeStudioSettings.formatColor(palette[slot]));
+                    swatches[slot].setBackground(swatchDrawable(context, palette[slot]));
+                }
+                preview.setPalette(palette);
+                applyEnabledState(enabled);
+            } catch (Throwable throwable) {
+                Log.w(TAG, "Failed to refresh Theme Studio controls", throwable);
             }
-            preview.setPalette(palette);
-            applyEnabledState(enabled);
         }
 
         private void applyEnabledState(boolean enabled) {
@@ -657,34 +735,39 @@ public final class GboardThemeStudioRuntime {
             preview.setAlpha(alpha);
         }
 
+        private void handleToggle(boolean enabled) {
+            try {
+                Context current = getContext();
+                if (current == null) {
+                    return;
+                }
+                GboardThemeStudioSettings.setEnabled(current, enabled);
+                applyEnabledState(enabled);
+                refreshKeyboards();
+            } catch (Throwable throwable) {
+                Log.w(TAG, "Failed to toggle Theme Studio", throwable);
+            }
+        }
+
         private void resetPalette() {
-            Context context = getContext();
-            if (context == null) {
-                return;
-            }
-            GboardThemeStudioSettings.reset(context);
-            refresh();
-            refreshKeyboards();
-            Toast.makeText(
-                    context,
-                    GboardSettingsText.get(
-                            context, R.string.gboard_patches_theme_studio_reset_done),
-                    Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        protected void onAttachedToWindow() {
-            super.onAttachedToWindow();
-            refresh();
-        }
-
-        @Override
-        protected void onWindowVisibilityChanged(int visibility) {
-            super.onWindowVisibilityChanged(visibility);
-            if (visibility == VISIBLE) {
+            try {
+                Context context = getContext();
+                if (context == null) {
+                    return;
+                }
+                GboardThemeStudioSettings.reset(context);
                 refresh();
+                refreshKeyboards();
+                Toast.makeText(
+                        context,
+                        GboardSettingsText.get(
+                                context, R.string.gboard_patches_theme_studio_reset_done),
+                        Toast.LENGTH_SHORT).show();
+            } catch (Throwable throwable) {
+                Log.w(TAG, "Failed to reset Theme Studio palette", throwable);
             }
         }
+
     }
 
     private static final class SavedColors {
