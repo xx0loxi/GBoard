@@ -24,9 +24,6 @@ internal enum class RuntimeCallId(internal val encodedAbi: String) {
     CANDIDATE_EMOJI_RUNTIME_ADJUST_CANDIDATE_PAINT("Lcom/akshaykadam/pixelboard/extension/emoji/GboardCandidateEmojiRuntime;->adjustCandidatePaint(Landroid/widget/TextView;Landroid/text/TextPaint;)V"),
     CLIPBOARD_SYNC_RUNTIME_SYNC_ON_START_INPUT_VIEW("Lcom/akshaykadam/pixelboard/extension/clipboard/GboardClipboardSyncRuntime;->syncOnStartInputView(Ljava/lang/Object;)V"),
     CLIPBOARD_VAULT_RUNTIME_CAPTURE("Lcom/akshaykadam/pixelboard/extension/clipboard/GboardClipboardVaultRuntime;->capture(Landroid/content/Context;Landroid/content/ClipData;)V"),
-    SOUND_HAPTICS_RUNTIME_APPLY_SOUND("Lcom/akshaykadam/pixelboard/extension/sound/GboardSoundHapticsRuntime;->applySound(Ljava/lang/Object;)V"),
-    SOUND_HAPTICS_RUNTIME_HANDLE_HAPTIC("Lcom/akshaykadam/pixelboard/extension/sound/GboardSoundHapticsRuntime;->handleHaptic(Ljava/lang/Object;I)Z"),
-    SOUND_HAPTICS_RUNTIME_OVERRIDE_VIBRATION("Lcom/akshaykadam/pixelboard/extension/sound/GboardSoundHapticsRuntime;->overrideVibration(Ljava/lang/Object;I)Z"),
     FEATURES_MENU_ACCESSIBILITY_ON_INFLATE("Lcom/akshaykadam/pixelboard/extension/accessibility/GboardFeaturesMenuAccessibilityRuntime;->onAccessPointsPanelInflated(Landroid/view/View;)V"),
     FEATURES_MENU_ACCESSIBILITY_ON_VISIBILITY_CHANGED("Lcom/akshaykadam/pixelboard/extension/accessibility/GboardFeaturesMenuAccessibilityRuntime;->onAccessPointsPanelVisibilityChanged(Landroid/view/View;)V"),
 }

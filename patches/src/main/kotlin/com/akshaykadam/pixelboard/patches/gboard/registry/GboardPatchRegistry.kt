@@ -24,7 +24,6 @@ import com.akshaykadam.pixelboard.patches.gboard.features.packagerename.applyGbo
 import com.akshaykadam.pixelboard.patches.gboard.features.packagerename.gboardPackageRenameResourcePatch
 import com.akshaykadam.pixelboard.patches.gboard.features.packagerename.isValidGboardAppDisplayName
 import com.akshaykadam.pixelboard.patches.gboard.features.signaturebypass.gboardSignatureBypassBytecodePatch
-import com.akshaykadam.pixelboard.patches.gboard.features.sound.gboardSoundHapticsPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.theme.gboardUnlockThemesPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.writingtools.gboardAiWritingToolsFeatureMarkerPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.writingtools.gboardAiWritingTools1803AutoFixAcceptancePatch
@@ -149,7 +148,7 @@ object GboardPublishedPatchCatalog {
         "Custom Gboard patches with Gemini AI, Rambler Voice, Writing Tools, themes, " +
             "and encrypted clipboard history."
     const val PUBLISHED_DOWNLOAD_URL =
-        "https://github.com/xx0loxi/GBoard/releases/download/1.3.5/patches-1.3.5.mpp"
+        "https://github.com/xx0loxi/GBoard/releases/download/1.3.6/patches-1.3.6.mpp"
 
     /**
      * Versions advertised in the published listing. The bundle itself still admits every
@@ -170,7 +169,6 @@ object GboardPublishedPatchCatalog {
         gboardClipboardVaultPatch,
         gboardClipboardHistoryPatch,
         gboardUnlockThemesPatch,
-        gboardSoundHapticsPatch,
     ).filterTo(linkedSetOf()) { patch -> patch.name != null }
 
     val publishedRegistrations: Set<Patch<*>> = linkedSetOf(

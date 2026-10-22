@@ -33,9 +33,6 @@
             },
             "Unlock All Themes": {
                 "enabled": true
-            },
-            "Sound & Haptics": {
-                "enabled": true
             }
         }
     }

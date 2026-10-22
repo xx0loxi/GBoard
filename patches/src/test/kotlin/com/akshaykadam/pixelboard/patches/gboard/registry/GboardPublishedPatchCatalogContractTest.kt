@@ -6,7 +6,6 @@ import com.akshaykadam.pixelboard.patches.gboard.features.clipboard.gboardClipbo
 import com.akshaykadam.pixelboard.patches.gboard.features.clipboard.gboardInfiniteClipboardPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.optimizations.gboardDisableCloudBackupPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.optimizations.gboardPerformancePrivacyPatch
-import com.akshaykadam.pixelboard.patches.gboard.features.sound.gboardSoundHapticsPatch
 import com.akshaykadam.pixelboard.patches.gboard.features.theme.gboardUnlockThemesPatch
 import com.akshaykadam.pixelboard.patches.gboard.shared.generated.GboardTargetAdmission
 import org.junit.Assert.assertEquals
@@ -20,7 +19,7 @@ class GboardPublishedPatchCatalogContractTest {
         val registrations = GboardPublishedPatchCatalog.publishedRegistrations
 
         assertTrue(registrations.isNotEmpty())
-        assertEquals(11, registrations.size)
+        assertEquals(10, registrations.size)
         assertEquals(registrations.size, registrations.map { patch -> patch.name }.distinct().size)
         assertSame(
             gboardAdvancedVoiceTypingPatch,
@@ -61,10 +60,6 @@ class GboardPublishedPatchCatalogContractTest {
         assertSame(
             gboardUnlockThemesPatch,
             registrations.single { patch -> patch.name == "Unlock All Themes" },
-        )
-        assertSame(
-            gboardSoundHapticsPatch,
-            registrations.single { patch -> patch.name == "Sound & Haptics" },
         )
     }
 
